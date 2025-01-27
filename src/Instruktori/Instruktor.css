@@ -166,7 +166,7 @@ form textarea {
     height: 100px;
 }
 
-.delete-button2, .view-students-button, .view-lessons-button {
+.delete-button2, .view-students-button, .view-lessons-button, .edit-course-button {
     background-color: transparent;
     color: #000;
     border: none;
@@ -176,6 +176,10 @@ form textarea {
     font-size: 26px;
     transition: 0.3s
 };
+
+.edit-course-button:hover {
+    color: rgb(212, 255, 0);
+}
 
 .delete-button2:hover {
     color: rgb(255, 53, 53); 

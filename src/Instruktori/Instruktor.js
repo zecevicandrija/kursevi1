@@ -250,7 +250,7 @@ const fetchKursevi = async () => {
                                 <button onClick={() => handleDelete(kurs.id)} className="delete-button2"><i className="ri-delete-bin-line"></i></button>
                                 <button onClick={() => viewStudents(kurs.id)} className="view-students-button"><i className="ri-graduation-cap-line"></i></button>
                                 <button onClick={() => handleShowLessons(kurs)} className="view-lessons-button"><i className="ri-git-repository-line"></i></button>
-                                <button onClick={() => handleEditCourse(kurs)} className="edit-course-button">Edit</button>
+                                <button onClick={() => handleEditCourse(kurs)} className="edit-course-button"><i className="ri-edit-fill"></i></button>
                             </div>
                         ))}
                     </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Button, TextField, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import './DodajKorisnika.css'; // Import the CSS file
 
 const DodajKorisnika = () => {
     const [ime, setIme] = useState('');
@@ -27,13 +28,13 @@ const DodajKorisnika = () => {
             console.error('Greška pri dodavanju korisnika:', error);
         }
     };
-    
 
     return (
-        <div>
-            <h2>Dodaj Korisnika</h2>
-            <form onSubmit={handleDodajKorisnika}>
+        <div className="dodaj-korisnika-container">
+            <h2 className="dodaj-korisnika-title">Dodaj Korisnika</h2>
+            <form className="dodaj-korisnika-form" onSubmit={handleDodajKorisnika}>
                 <TextField
+                    className="dodaj-korisnika-input"
                     label="Ime"
                     value={ime}
                     onChange={(e) => setIme(e.target.value)}
@@ -41,6 +42,7 @@ const DodajKorisnika = () => {
                     margin="normal"
                 />
                 <TextField
+                    className="dodaj-korisnika-input"
                     label="Prezime"
                     value={prezime}
                     onChange={(e) => setPrezime(e.target.value)}
@@ -48,6 +50,7 @@ const DodajKorisnika = () => {
                     margin="normal"
                 />
                 <TextField
+                    className="dodaj-korisnika-input"
                     type="email"
                     label="Email"
                     value={email}
@@ -56,6 +59,7 @@ const DodajKorisnika = () => {
                     margin="normal"
                 />
                 <TextField
+                    className="dodaj-korisnika-input"
                     type="password"
                     label="Šifra"
                     value={sifra}
@@ -64,6 +68,7 @@ const DodajKorisnika = () => {
                     margin="normal"
                 />
                 <TextField
+                    className="dodaj-korisnika-input"
                     label="Telefon"
                     value={telefon}
                     onChange={(e) => setTelefon(e.target.value)}
@@ -71,15 +76,17 @@ const DodajKorisnika = () => {
                     margin="normal"
                 />
                 <TextField
+                    className="dodaj-korisnika-input"
                     label="Adresa"
                     value={adresa}
                     onChange={(e) => setAdresa(e.target.value)}
                     fullWidth
                     margin="normal"
                 />
-                <FormControl fullWidth margin="normal">
+                <FormControl fullWidth margin="normal" className="dodaj-korisnika-select-control">
                     <InputLabel id="select-uloga-label">Uloga</InputLabel>
                     <Select
+                        className="dodaj-korisnika-select"
                         labelId="select-uloga-label"
                         value={uloga}
                         onChange={(e) => setUloga(e.target.value)}
@@ -89,7 +96,14 @@ const DodajKorisnika = () => {
                         <MenuItem value="korisnik">Korisnik</MenuItem>
                     </Select>
                 </FormControl>
-                <Button type="submit" variant="contained" color="primary">Dodaj Korisnika</Button>
+                <Button
+                    className="dodaj-korisnika-submit"
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                >
+                    Dodaj Korisnika
+                </Button>
             </form>
         </div>
     );
