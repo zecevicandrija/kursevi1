@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db'); // Pretpostavimo da imamo db modul za konekciju sa bazom
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // Endpoint za registraciju korisnika
 router.post('/register', async (req, res) => {
