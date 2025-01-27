@@ -18,7 +18,7 @@ const kvizoviRouter = require('./routes/kvizovi');
 const rezultatiKvizaRouter = require('./routes/rezultati_kviza');
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3306;
 
 // Cloudinary konfiguracija
 cloudinary.config({
