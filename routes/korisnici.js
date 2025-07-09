@@ -3,64 +3,59 @@ const router = express.Router();
 const db = require('../db');
 const bcrypt = require('bcryptjs');
 
-
 // Endpoint za dobavljanje svih korisnika
-router.get('/', (req, res) => {
-    const query = 'SELECT * FROM korisnici';
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Database error:', err);
-            return res.status(500).json({ error: 'Database error' });
-        }
+router.get('/', async (req, res) => {
+    try {
+        // Iz bezbednosnih razloga, nikada ne šaljemo lozinke na frontend
+        const query = 'SELECT id, ime, prezime, email, uloga FROM korisnici';
+        const [results] = await db.query(query);
         res.status(200).json(results);
-    });
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).json({ error: 'Greška na serveru' });
+    }
 });
 
 // Endpoint za dodavanje novog korisnika
 router.post('/', async (req, res) => {
-    const { ime, prezime, email, sifra, uloga, adresa, telefon } = req.body;
-    console.log("Primljeni podaci:", req.body); // Ispišite podatke u konzolu
+    // Uklonili smo 'adresa' i 'telefon' jer više ne postoje u bazi
+    const { ime, prezime, email, sifra, uloga } = req.body;
 
     try {
-        if (!ime || !prezime || !email || !sifra || !uloga || !telefon || !adresa) {
-            console.error('Nedostaju obavezna polja'); // Log za grešku
+        if (!ime || !prezime || !email || !sifra || !uloga) {
             return res.status(400).json({ error: 'Nedostaju obavezna polja' });
         }
 
         const hashedPassword = await bcrypt.hash(sifra, 10);
-        console.log('Hashed password:', hashedPassword); // Ispišite hashedPassword
-
-        const query = 'INSERT INTO korisnici (ime, prezime, email, sifra, uloga, adresa, telefon) VALUES (?, ?, ?, ?, ?, ?, ?)';
-        db.query(query, [ime, prezime, email, hashedPassword, uloga, adresa, telefon], (err, results) => {
-            if (err) {
-                console.error('Greška u bazi podataka:', err); // Log za grešku u bazi
-                return res.status(500).json({ error: 'Greška u bazi podataka' });
-            }
-            res.status(201).json({ message: 'Korisnik uspešno dodat', userId: results.insertId });
-        });
+        
+        const query = 'INSERT INTO korisnici (ime, prezime, email, sifra, uloga) VALUES (?, ?, ?, ?, ?)';
+        const [results] = await db.query(query, [ime, prezime, email, hashedPassword, uloga]);
+        
+        res.status(201).json({ message: 'Korisnik uspešno dodat', userId: results.insertId });
     } catch (error) {
-        console.error('Interna greška servera:', error); // Log za internu grešku
-        res.status(500).json({ error: 'Interna greška servera' });
+        // Bolje rukovanje greškom ako email već postoji
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ error: 'Korisnik sa datim email-om već postoji.' });
+        }
+        console.error('Greška u bazi podataka:', error);
+        res.status(500).json({ error: 'Greška na serveru' });
     }
 });
 
 // Endpoint za ažuriranje korisnika
 router.put('/:id', async (req, res) => {
-    const userId = req.params.id;
-    const { ime, prezime, email, sifra, uloga, adresa, telefon } = req.body;
-
     try {
-        // Provjera da li je potrebno ažurirati lozinku
+        const userId = req.params.id;
+        const { ime, prezime, email, sifra, uloga } = req.body;
+
         let hashedPassword;
         if (sifra) {
             hashedPassword = await bcrypt.hash(sifra, 10);
         }
 
-        // Priprema SQL upita
-        let query = 'UPDATE korisnici SET ime = ?, prezime = ?, email = ?, uloga = ?, adresa = ?, telefon = ?';
-        let queryParams = [ime, prezime, email, uloga, adresa, telefon];
+        let query = 'UPDATE korisnici SET ime = ?, prezime = ?, email = ?, uloga = ?';
+        let queryParams = [ime, prezime, email, uloga];
 
-        // Ako je lozinka uključena u upit, dodajte je u SQL upit
         if (sifra) {
             query += ', sifra = ?';
             queryParams.push(hashedPassword);
@@ -69,32 +64,38 @@ router.put('/:id', async (req, res) => {
         query += ' WHERE id = ?';
         queryParams.push(userId);
 
-        // Izvršavanje SQL upita
-        db.query(query, queryParams, (err, results) => {
-            if (err) {
-                console.error('Database error:', err);
-                return res.status(500).json({ error: 'Database error' });
-            }
-            res.status(200).json({ message: `User with ID ${userId} updated successfully` });
-        });
+        const [results] = await db.query(query, queryParams);
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: `Korisnik sa ID-jem ${userId} nije pronađen.` });
+        }
+
+        res.status(200).json({ message: `Korisnik sa ID-jem ${userId} uspešno ažuriran.` });
+
     } catch (error) {
-        console.error('Internal server error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Database error:', error);
+        res.status(500).json({ error: 'Greška na serveru' });
     }
 });
 
 
 // Endpoint za brisanje korisnika
-router.delete('/:id', (req, res) => {
-    const userId = req.params.id;
-    const query = 'DELETE FROM korisnici WHERE id = ?';
-    db.query(query, [userId], (err, results) => {
-        if (err) {
-            console.error('Database error:', err);
-            return res.status(500).json({ error: 'Database error' });
+router.delete('/:id', async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const query = 'DELETE FROM korisnici WHERE id = ?';
+        const [results] = await db.query(query, [userId]);
+
+        // Proveravamo da li je red uopšte obrisan
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: `Korisnik sa ID-jem ${userId} nije pronađen.` });
         }
-        res.status(200).json({ message: `User with ID ${userId} deleted successfully` });
-    });
+
+        res.status(200).json({ message: `Korisnik sa ID-jem ${userId} uspešno obrisan.` });
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).json({ error: 'Greška na serveru' });
+    }
 });
 
 module.exports = router;

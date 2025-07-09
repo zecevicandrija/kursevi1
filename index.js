@@ -33,7 +33,7 @@ cloudinary.config({
 
 // Middleware
 app.use('/api/webhooks', webhooksRouter);
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(bodyParser.json());
 
 

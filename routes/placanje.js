@@ -1,54 +1,55 @@
-// backend/routes/placanje.js
 const express = require('express');
 const router = express.Router();
-const { LemonsqueezyClient } = require('lemonsqueezy.ts');
 const db = require('../db');
+const { lemonSqueezySetup, createCheckout } = require('@lemonsqueezy/lemonsqueezy.js');
 
-// Inicijalizacija Lemon Squeezy klijenta
-const ls = new LemonsqueezyClient(process.env.LEMON_SQUEEZY_API_KEY);
+// Konfigurišemo biblioteku sa API ključem
+lemonSqueezySetup({
+  apiKey: process.env.LEMON_SQUEEZY_API_KEY,
+});
 
 router.post('/kreiraj-checkout', async (req, res) => {
-    // 1. Proširili smo promenljive koje primamo iz req.body
-    const { kurs_id, email, ime, prezime } = req.body;
-
-    // 2. Ažurirali smo validaciju da proverava sva nova polja
-    if (!kurs_id || !email || !ime || !prezime) {
-        return res.status(400).json({ error: 'Sva polja (ID kursa, email, ime, prezime) su obavezna.' });
-    }
-
     try {
-        // Pronađi variant_id kursa u našoj bazi
+        const { kurs_id, email, ime, prezime } = req.body;
+
+        if (!kurs_id || !email || !ime || !prezime) {
+            return res.status(400).json({ error: 'Sva polja su obavezna.' });
+        }
+
         const query = 'SELECT lemon_squeezy_variant_id FROM kursevi WHERE id = ?';
-        db.query(query, [kurs_id], async (err, results) => {
-            if (err || results.length === 0 || !results[0].lemon_squeezy_variant_id) {
-                return res.status(404).json({ error: 'Kurs ili odgovarajuća varijanta proizvoda nisu pronađeni.' });
-            }
+        const [results] = await db.query(query, [kurs_id]);
 
-            const variantId = results[0].lemon_squeezy_variant_id;
+        if (results.length === 0 || !results[0].lemon_squeezy_variant_id) {
+            return res.status(404).json({ error: 'Kurs ili odgovarajuća varijanta proizvoda nisu pronađeni.' });
+        }
 
-            // Kreiraj checkout koristeći Lemon Squeezy API
-            const checkout = await ls.createCheckout({
-                storeId: parseInt(process.env.LEMON_SQUEEZY_STORE_ID, 10),
-                variantId: parseInt(variantId, 10),
-                
-                // 3. Dodali smo checkout_data objekat da unapred popunimo formu
-                checkout_data: {
-                    email: email,
-                    name: `${ime} ${prezime}`,
-                },
+        const variantId = results[0].lemon_squeezy_variant_id;
+        const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
+        
+        console.log(`👉 Pokušavam kreirati checkout sa variantId=${variantId} i storeId=${storeId}`);
 
-                // Custom podaci su i dalje tu, važni su za naš webhook
-                custom: {
-                    kurs_id: String(kurs_id), 
-                }
-            });
-
-            // Pošalji checkout URL nazad frontendu
-            res.json({ url: checkout.data.attributes.url });
+        // ISPRAVKA JE OVDE: storeId i variantId se prosleđuju kao prvi i drugi argument,
+        // a ostatak podataka kao treći argument (objekat).
+        const { data: checkout, error } = await createCheckout(storeId, variantId, {
+            checkoutData: {
+                email,
+                name: `${ime} ${prezime}`,
+            },
+            custom: {
+                kurs_id: String(kurs_id),
+            },
         });
 
+        if (error) {
+            console.error("Greška od Lemon Squeezy-ja:", error);
+            throw new Error(error.message); 
+        }
+        
+        const checkoutUrl = checkout.data.attributes.url;
+        res.json({ url: checkoutUrl });
+
     } catch (error) {
-        console.error("Greška prilikom kreiranja checkout-a:", error);
+        console.error("Greška unutar try/catch bloka:", error);
         res.status(500).json({ error: 'Došlo je do greške na serveru.' });
     }
 });
