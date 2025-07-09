@@ -33,7 +33,26 @@ cloudinary.config({
 
 // Middleware
 app.use('/api/webhooks', webhooksRouter);
-app.use(cors({ origin: 'https://learningplatform1.netlify.app/' }));
+// Definišemo listu dozvoljenih adresa
+const allowedOrigins = [
+    'https://learningplatform1.netlify.app',
+    'https://learningplatform1.netlify.app/' // Dodajemo i verziju sa kosom crtom
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Dozvoli zahteve koji nemaju origin (npr. Postman, mobilne aplikacije)
+        if (!origin) return callback(null, true);
+
+        // Proveri da li je dolazeći origin na našoj listi dozvoljenih
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        
+        return callback(null, true);
+    }
+}));
 app.use(bodyParser.json());
 
 
