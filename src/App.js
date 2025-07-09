@@ -19,6 +19,7 @@ import Studenti from './Instruktori/Studenti';
 import Korpa from './Kupovina/Korpa';
 import { ThemeProvider } from './komponente/ThemeContext';
 import Kviz from './Instruktori/Kviz';
+import Checkout from './Kupovina/Checkout';
 
 import './App.css';
 
@@ -46,6 +47,7 @@ const App = () => {
           />
           <Route path="/korpa" element={<Korpa />} />
           <Route path='/napravikviz' element={<Kviz />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/nevazeca" element={<Nepostojeca />} />
         </Routes>
         </ThemeProvider>

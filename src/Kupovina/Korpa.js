@@ -18,7 +18,7 @@ const Korpa = () => {
   const [discountCode, setDiscountCode] = useState(''); // State for discount code
   const [discountApplied, setDiscountApplied] = useState(0); // State for discount percentage
   const [instruktori, setInstruktori] = useState({});
-
+  const [discountId, setDiscountId] = useState(null);
  
 
   useEffect(() => {
@@ -98,13 +98,13 @@ const Korpa = () => {
         await axios.post('http://localhost:5000/api/kupovina', {
           korisnik_id: korisnikId,
           kurs_id: kursId,
-          popust: discountApplied,
+          popust_id: discountId,
         });
       }
       localStorage.removeItem('cart');
       setCartItems([]);
       setTotal(total);
-      navigate('/kupljenkurs');
+      navigate('/checkout', { state: { items: courseDetails } });
     } catch (error) {
       console.error('Greška prilikom finalizacije kupovine:', error);
     }
@@ -261,6 +261,7 @@ const Korpa = () => {
       if (response.data.valid) {
         const discountPercent = response.data.discountPercent;
         setDiscountApplied(discountPercent);
+        setDiscountId(response.data.discountId);
   
         // Calculate new total price
         const discountAmount = (total * discountPercent) / 100;

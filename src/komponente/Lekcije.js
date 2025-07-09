@@ -7,7 +7,7 @@ const Lekcije = () => {
     const [lekcije, setLekcije] = useState([]);
     const [courses, setCourses] = useState([]);
     const [sections, setSections] = useState([]); // New state for sections
-    const [newLekcija, setNewLekcija] = useState({ course_id: '', title: '', content: '', section: '' });
+    const [newLekcija, setNewLekcija] = useState({ course_id: '', title: '', content: '', section: '', assignment: '' });
     const [video, setVideo] = useState(null);
     const [loading, setLoading] = useState(false); // New state for loading
     const { user } = useAuth(); // Fetch user from AuthContext
@@ -64,40 +64,38 @@ const Lekcije = () => {
     };
 
     const handleAddLekcija = async (e) => {
-        e.preventDefault();
+    e.preventDefault();
+    setLoading(true);
 
-        if (!video) {
-            console.error('Video file is required');
-            return;
-        }
-
+    try {
         const formData = new FormData();
         formData.append('course_id', newLekcija.course_id);
         formData.append('title', newLekcija.title);
         formData.append('content', newLekcija.content);
         formData.append('section', newLekcija.section);
-        formData.append('video', video);
-
-        setLoading(true);
-
-        try {
-            await axios.post('http://localhost:5000/api/lekcije', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-
-            const response = await axios.get('http://localhost:5000/api/lekcije');
-            setLekcije(response.data);
-            setNewLekcija({ course_id: '', title: '', content: '', section: '' });
-            setVideo(null);
-        } catch (error) {
-            console.error('Error adding lesson:', error);
-        } finally {
-            setLoading(false);
+        formData.append('assignment', newLekcija.assignment);
+        if (video) {
+            formData.append('video', video);
         }
-    };
 
+        const response = await axios.post('http://localhost:5000/api/lekcije', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        // Osvežite listu lekcija
+        const lekcijeResponse = await axios.get('http://localhost:5000/api/lekcije');
+        setLekcije(lekcijeResponse.data);
+        setNewLekcija({ course_id: '', title: '', content: '', section: '', assignment: '' });
+        setVideo(null);
+    } catch (error) {
+        console.error('Error adding lesson:', error);
+        alert(`Greška pri dodavanju lekcije: ${error.response?.data?.error || error.message}`);
+    } finally {
+        setLoading(false);
+    }
+};
     return (
         <div className="lekcije-container">
             <h3 className='lekcijenaslov1'>Napravite Lekcije</h3>
@@ -174,6 +172,17 @@ const Lekcije = () => {
                         required
                     />
                 </div>
+                <div>
+                    <label htmlFor="assignment">Zadatak (opciono):</label>
+                    <textarea
+                        id="assignment"
+                        name="assignment"
+                        value={newLekcija.assignment}
+                        onChange={handleInputChange}
+                        placeholder="Unesite zadatak za lekciju"
+                    />
+                </div>
+
                 <button type="submit" disabled={loading}>Dodaj Lekciju</button>
                 {loading && <p>Dodavanje lekcije... Molimo sačekajte.</p>}
             </form>
