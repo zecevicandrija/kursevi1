@@ -83,7 +83,7 @@ router.post('/lemon-squeezy', async (req, res) => {
                     [ime, prezime, userEmail, hashedPassword, 'korisnik']
                 );
                 userId = newUserResult.insertId;
-                console.log(`Novi korisnik kreiran. ID: ${userId}.`);
+                console.log(`Novi korisnik kreiran. ID: ${userId}. Lozinka (pre heširanja): ${password}`);
                 // OVDE ĆEMO KASNIJE DODATI LOGIKU ZA SLANJE EMAIL-A
             }
 
