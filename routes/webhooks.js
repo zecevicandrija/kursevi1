@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const db = require('../db');
 const generateRandomPassword = require('../utils/passwordGenerator');
+const { Resend } = require('resend');
 
 // Middleware ostaje isti
 router.use(express.raw({ type: 'application/json' }));
@@ -84,7 +85,31 @@ router.post('/lemon-squeezy', async (req, res) => {
                 );
                 userId = newUserResult.insertId;
                 console.log(`Novi korisnik kreiran. ID: ${userId}. Lozinka (pre heširanja): ${password}`);
-                // OVDE ĆEMO KASNIJE DODATI LOGIKU ZA SLANJE EMAIL-A
+                try {
+                    const resend = new Resend(process.env.RESEND_API_KEY);
+
+                    await resend.emails.send({
+                        from: 'onboarding@resend.dev', // Mora biti sa verifikovanog domena
+                        to: userEmail,
+                        subject: 'Dobrodošli! Vaš nalog je kreiran.',
+                        html: `
+                            <h1>Pozdrav ${ime},</h1>
+                            <p>Hvala Vam na kupovini kursa! Vaš nalog je uspešno kreiran.</p>
+                            <p>Možete se prijaviti na naš sajt sa sledećim podacima:</p>
+                            <ul>
+                                <li><strong>Email:</strong> ${userEmail}</li>
+                                <li><strong>Lozinka:</strong> ${password}</li>
+                            </ul>
+                            <p>Takođe se pridružite Discord zajednici kako bi se povezali sa ostalim članovima kursa i timom: (link)</p>
+                            <p>Srećno sa učenjem!</p>
+                        `
+                    });
+                    console.log(`Email dobrodošlice poslat na ${userEmail}`);
+                } catch (emailError) {
+                    // Ako slanje email-a ne uspe, ne želimo da zaustavimo ceo proces.
+                    // Samo ćemo zabeležiti grešku da bismo je mogli kasnije rešiti.
+                    console.error("Greška prilikom slanja email-a:", emailError);
+                }
             }
 
             const [postojecaKupovina] = await connection.query('SELECT id FROM kupovina WHERE korisnik_id = ? AND kurs_id = ?', [userId, kursId]);
