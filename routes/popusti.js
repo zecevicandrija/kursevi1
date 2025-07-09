@@ -53,6 +53,7 @@ router.post('/validate', (req, res) => {
             res.json({
                 valid: true,
                 discountPercent: discount.procenat,
+                discountId: discount.id,
             });
         } else {
             res.json({

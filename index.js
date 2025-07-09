@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -16,6 +17,8 @@ const kompletirane_lekcijeRouter = require('./routes/kompletirane_lekcije');
 const popustiRouter = require('./routes/popusti');
 const kvizoviRouter = require('./routes/kvizovi');
 const rezultatiKvizaRouter = require('./routes/rezultati_kviza');
+const placanjeRouter = require('./routes/placanje');
+const webhooksRouter = require('./routes/webhooks');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -29,16 +32,18 @@ cloudinary.config({
 });
 
 // Middleware
+app.use('/api/webhooks', webhooksRouter);
 app.use(cors());
 app.use(bodyParser.json());
+
 
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Database connection
-db.connect((err) => {
-    if (err) throw err;
-    console.log('Connected to MySQL database');
-});
+// db.connect((err) => {
+//     if (err) throw err;
+//     console.log('Connected to MySQL database');
+// });
 
 // Routes
 app.use('/api/auth', authRouter);
@@ -53,6 +58,7 @@ app.use('/api/kompletirane_lekcije', kompletirane_lekcijeRouter);
 app.use('/api/popusti', popustiRouter);
 app.use('/api/kvizovi', kvizoviRouter);
 app.use('/api/rezultati_kviza', rezultatiKvizaRouter);
+app.use('/api/placanje', placanjeRouter);
 
 
 // Start server

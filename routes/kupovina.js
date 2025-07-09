@@ -21,12 +21,12 @@ router.get('/user/:korisnikId', (req, res) => {
 
 /// Endpoint za dodavanje kupovine
 router.post('/', async (req, res) => {
-    const { korisnik_id, kurs_id, popust } = req.body;
+    const { korisnik_id, kurs_id, popust_id } = req.body;
   
     try {
       // Unesite podatke u bazu
       const query = 'INSERT INTO kupovina (korisnik_id, kurs_id, popust_id) VALUES (?, ?, ?)';
-      const result = await db.query(query, [korisnik_id, kurs_id, popust]);
+      const result = await db.query(query, [korisnik_id, kurs_id, popust_id]);
   
       res.status(201).json({ success: true, message: 'Purchase recorded successfully' });
     } catch (error) {
