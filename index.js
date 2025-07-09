@@ -21,7 +21,7 @@ const placanjeRouter = require('./routes/placanje');
 const webhooksRouter = require('./routes/webhooks');
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3306;
 
 // Cloudinary konfiguracija
 cloudinary.config({
@@ -33,7 +33,7 @@ cloudinary.config({
 
 // Middleware
 app.use('/api/webhooks', webhooksRouter);
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: 'https://learningplatform1.netlify.app/' }));
 app.use(bodyParser.json());
 
 
