@@ -6,8 +6,10 @@ const db = require('../db');
 router.get('/user/:korisnikId', async (req, res) => {
     try {
         const korisnikId = req.params.korisnikId;
+        // Ažuriran upit da dohvati i 'is_subscription' informaciju
         const query = `
-            SELECT k.* FROM kursevi k
+            SELECT k.*, k.is_subscription 
+            FROM kursevi k
             INNER JOIN kupovina p ON k.id = p.kurs_id
             WHERE p.korisnik_id = ?
         `;
@@ -19,7 +21,7 @@ router.get('/user/:korisnikId', async (req, res) => {
     }
 });
 
-// Endpoint za dodavanje kupovine (OVA RUTA JE VEĆ BILA ISPRAVNA)
+// Endpoint za dodavanje kupovine
 router.post('/', async (req, res) => {
     try {
         const { korisnik_id, kurs_id, popust_id } = req.body;
