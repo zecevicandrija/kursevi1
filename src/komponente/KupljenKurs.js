@@ -14,7 +14,7 @@ const KupljenKurs = () => {
         const fetchKupljeniKursevi = async () => {
             if (user && user.id) { // Check if user and user ID exist
                 try {
-                    const response = await axios.get(`http://localhost:5000/api/kupovina/user/${user.id}`);
+                    const response = await axios.get(`https://horses-1.onrender.com/api/kupovina/user/${user.id}`);
                     if (response.status === 200) {
                         setKupljeniKursevi(response.data);
                     } else {
@@ -38,7 +38,7 @@ const KupljenKurs = () => {
                 const newRatings = {};
                 for (const kurs of kupljeniKursevi) {
                     try {
-                        const response = await axios.get(`http://localhost:5000/api/ratings/user/${user.id}/course/${kurs.id}`);
+                        const response = await axios.get(`https://horses-1.onrender.com/api/ratings/user/${user.id}/course/${kurs.id}`);
                         if (response.status === 200) {
                             newRatings[kurs.id] = response.data.ocena;
                         }
@@ -62,8 +62,8 @@ const KupljenKurs = () => {
                 const newProgress = {};
                 for (const kurs of kupljeniKursevi) {
                     try {
-                        const lessonsResponse = await axios.get(`http://localhost:5000/api/lekcije/course/${kurs.id}`);
-                        const completedResponse = await axios.get(`http://localhost:5000/api/kompletirane_lekcije/user/${user.id}/course/${kurs.id}`);
+                        const lessonsResponse = await axios.get(`https://horses-1.onrender.com/api/lekcije/course/${kurs.id}`);
+                        const completedResponse = await axios.get(`https://horses-1.onrender.com/api/kompletirane_lekcije/user/${user.id}/course/${kurs.id}`);
                         const totalLessons = lessonsResponse.data.length;
                         const completedLessons = completedResponse.data.length;
                         newProgress[kurs.id] = (completedLessons / totalLessons) * 100;

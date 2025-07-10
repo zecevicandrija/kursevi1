@@ -13,7 +13,7 @@ const MojProfil = () => {
     const fetchWishlist = async () => {
       if (user) {
         try {
-          const response = await fetch(`http://localhost:5000/api/wishlist/${user.id}`);
+          const response = await fetch(`https://horses-1.onrender.com/api/wishlist/${user.id}`);
           if (response.ok) {
             const data = await response.json();
             setWishlist(data);
@@ -59,7 +59,7 @@ const MojProfil = () => {
     }
 
     try {
-      await fetch('http://localhost:5000/api/wishlist', {
+      await fetch('https://horses-1.onrender.com/api/wishlist', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

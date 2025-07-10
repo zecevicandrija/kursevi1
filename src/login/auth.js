@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, sifra) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "https://horses-1.onrender.com/api/auth/login",
         { email, sifra }
       );
       if (response.status === 200) {
@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }) => {
   const updateUser = async (userData) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/update",
+        "https://horses-1.onrender.com/api/auth/update",
         userData
       );
       if (response.status === 200) {

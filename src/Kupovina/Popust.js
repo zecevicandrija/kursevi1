@@ -10,7 +10,7 @@ const Popust = () => {
 
     const createDiscount = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/api/popusti/create', {
+            const response = await axios.post('https://horses-1.onrender.com/api/popusti/create', {
                 code: discountCode,
                 discountPercent: Number(discountPercent),
             });
