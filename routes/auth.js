@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken'); // 1. Uvozimo jsonwebtoken
+const authMiddleware = require('../middleware/token');
 
 // Endpoint za registraciju korisnika (ostaje isti kao što smo ga sredili)
 router.post('/register', async (req, res) => {
@@ -63,6 +64,21 @@ router.post('/login', async (req, res) => {
     } catch (error) {
         console.error('Greška prilikom prijavljivanja:', error);
         res.status(500).json({ error: 'Došlo je do greške na serveru.' });
+    }
+});
+
+router.get('/me', authMiddleware, async (req, res) => {
+    try {
+        // req.user.id dolazi iz authMiddleware-a
+        const query = 'SELECT id, ime, prezime, email, uloga, DATE_FORMAT(subscription_expires_at, "%Y-%m-%dT%H:%i:%sZ") as subscription_expires_at FROM korisnici WHERE id = ?';
+        const [users] = await db.query(query, [req.user.id]);
+
+        if (users.length === 0) {
+            return res.status(404).json({ message: 'Korisnik nije pronađen.' });
+        }
+        res.json(users[0]);
+    } catch (error) {
+        res.status(500).json({ message: 'Greška na serveru.' });
     }
 });
 
