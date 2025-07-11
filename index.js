@@ -36,7 +36,7 @@ app.use('/api/webhooks', webhooksRouter);
 // Definišemo listu dozvoljenih adresa
 const allowedOrigins = [
     'https://learningplatform1.netlify.app',
-    'https://learningplatform1.netlify.app/' // Dodajemo i verziju sa kosom crtom
+    'https://learningplatform1.netlify.app/'
 ];
 
 app.use(cors({
