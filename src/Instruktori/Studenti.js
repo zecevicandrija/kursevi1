@@ -11,7 +11,7 @@ const Studenti = () => {
     useEffect(() => {
         const fetchStudenti = async () => {
             try {
-                const response = await fetch(`https://horses-1.onrender.com/api/kupovina/studenti/${kursId}`);
+                const response = await fetch(`http://localhost:5000/api/kupovina/studenti/${kursId}`);
                 if (response.ok) {
                     const data = await response.json();
                     setStudenti(data);
@@ -25,7 +25,7 @@ const Studenti = () => {
 
         const fetchKursNaziv = async () => {
             try {
-                const response = await fetch(`https://horses-1.onrender.com/api/kursevi/${kursId}`);
+                const response = await fetch(`http://localhost:5000/api/kursevi/${kursId}`);
                 if (response.ok) {
                     const data = await response.json();
                     setKursNaziv(data.naziv);

@@ -39,10 +39,10 @@ const KursDetalj = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const kursResponse = await axios.get(`https://horses-1.onrender.com/api/kursevi/${id}`);
+                const kursResponse = await axios.get(`http://localhost:5000/api/kursevi/${id}`);
                 setKurs(kursResponse.data);
 
-                const lekcijeResponse = await axios.get(`https://horses-1.onrender.com/api/lekcije/course/${id}`);
+                const lekcijeResponse = await axios.get(`http://localhost:5000/api/lekcije/course/${id}`);
                 setLekcije(lekcijeResponse.data);
                 // Set first section as active by default
                 if (lekcijeResponse.data.length > 0) {
@@ -56,23 +56,23 @@ const KursDetalj = () => {
 
 
                 if (user) {
-                    const kupovinaResponse = await axios.get(`https://horses-1.onrender.com/api/kupovina/user/${user.id}`);
+                    const kupovinaResponse = await axios.get(`http://localhost:5000/api/kupovina/user/${user.id}`);
                     const purchasedCourse = kupovinaResponse.data.find(course => course.id === parseInt(id));
                     setKupioKurs(!!purchasedCourse);
 
                     if (purchasedCourse) {
                         try {
-                            const ratingResponse = await axios.get(`https://horses-1.onrender.com/api/ratings/user/${user.id}/course/${id}`);
+                            const ratingResponse = await axios.get(`http://localhost:5000/api/ratings/user/${user.id}/course/${id}`);
                             setRating(ratingResponse.data.ocena || 0);
                         } catch (error) {
                             console.error('Error fetching rating:', error);
                         }
                     }
 
-                    const completedResponse = await axios.get(`https://horses-1.onrender.com/api/kompletirane_lekcije/user/${user.id}/course/${id}`);
+                    const completedResponse = await axios.get(`http://localhost:5000/api/kompletirane_lekcije/user/${user.id}/course/${id}`);
                     setCompletedLessons(new Set(completedResponse.data.map(lesson => lesson.lekcija_id)));
 
-                    const wishlistResponse = await axios.get(`https://horses-1.onrender.com/api/wishlist/check?korisnik_id=${user.id}&kurs_id=${id}`);
+                    const wishlistResponse = await axios.get(`http://localhost:5000/api/wishlist/check?korisnik_id=${user.id}&kurs_id=${id}`);
                     setWishlisted(wishlistResponse.data.exists);
                 }
             } catch (error) {
@@ -97,7 +97,7 @@ const KursDetalj = () => {
        setCompletedLessons(updatedCompletedLessons);
 
        try {
-           await axios.post('https://horses-1.onrender.com/api/kompletirane_lekcije', {
+           await axios.post('http://localhost:5000/api/kompletirane_lekcije', {
                korisnik_id: user.id,
                kurs_id: id,
                lekcija_id: lessonId,
@@ -136,7 +136,7 @@ const KursDetalj = () => {
 
    const fetchQuiz = async (lessonId) => {
        try {
-           const response = await axios.get(`https://horses-1.onrender.com/api/kvizovi/lesson/${lessonId}`);
+           const response = await axios.get(`http://localhost:5000/api/kvizovi/lesson/${lessonId}`);
            const updatedPitanja = response.data.pitanja.map(pitanje => {
                let parsedAnswers;
                try {
@@ -182,7 +182,7 @@ const KursDetalj = () => {
    const handleSaveCode = async () => {
        if (!otvorenaLekcija?.id || !user) return;
        try {
-           await axios.post('https://horses-1.onrender.com/api/saved-codes', {
+           await axios.post('http://localhost:5000/api/saved-codes', {
                user_id: user.id,
                lesson_id: otvorenaLekcija.id,
                code: code,
@@ -199,10 +199,10 @@ const KursDetalj = () => {
        if (!user) return;
        try {
            if (wishlisted) {
-               await axios.delete('https://horses-1.onrender.com/api/wishlist', { data: { korisnik_id: user.id, kurs_id: id } });
+               await axios.delete('http://localhost:5000/api/wishlist', { data: { korisnik_id: user.id, kurs_id: id } });
                setWishlisted(false);
            } else {
-               await axios.post('https://horses-1.onrender.com/api/wishlist', { korisnik_id: user.id, kurs_id: id });
+               await axios.post('http://localhost:5000/api/wishlist', { korisnik_id: user.id, kurs_id: id });
                setWishlisted(true);
            }
        } catch (error) {
@@ -224,7 +224,7 @@ const KursDetalj = () => {
    const handleRatingSubmit = async () => {
        if (!user || !kupioKurs || rating === 0) return;
        try {
-           await axios.post('https://horses-1.onrender.com/api/ratings', { korisnik_id: user.id, kurs_id: id, ocena: rating });
+           await axios.post('http://localhost:5000/api/ratings', { korisnik_id: user.id, kurs_id: id, ocena: rating });
            alert('Uspešno ste ocenili kurs!');
        } catch (error) {
            console.error('Error submitting rating:', error);
@@ -234,7 +234,7 @@ const KursDetalj = () => {
 
    const handleReviewCode = async () => {
        try {
-           const resp = await axios.post('https://horses-1.onrender.com/api/lekcije/deepseek-review', { code, language });
+           const resp = await axios.post('http://localhost:5000/api/lekcije/deepseek-review', { code, language });
            if (resp.data.success) {
                setReviewFeedback({ message: resp.data.message });
            } else {

@@ -1,14 +1,17 @@
-/* Navigacioni meni */
-body {
-    background-color: white;
-    color: black;
+/* Osnovni stilovi */
+.navbar {
+    background-color: #000;
+    color: #fff;
+    padding: 1rem 2rem;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.navbar {
-    background-color: transparent;
-    padding: 10px 20px;
-    border: 1px solid #007bff;
-    position: relative; /* Ensure positioning context for badge */
+.navbar.dark {
+    background-color: #111;
 }
 
 .navbar-container {
@@ -19,153 +22,153 @@ body {
     margin: 0 auto;
 }
 
-.navbar-logo {
-    color: black;
-    font-size: 24px;
-    text-decoration: none;
-    font-weight: bold;
-    margin-left: -50%;
-}
-
-.logo {
-    width: 80px;
-    border-radius: 10px;
-    object-fit: cover;
-}
-
-.navbar-menu {
-    list-style: none;
+.navbar-left, .navbar-right {
     display: flex;
+    align-items: center;
+}
+
+.navbar-logo img {
+    height: 40px;
+    width: auto;
+}
+
+/* Linkovi */
+.navbar-menu {
+    display: flex;
+    list-style: none;
     margin: 0;
     padding: 0;
+    align-items: center;
 }
 
 .navbar-item {
-    margin-left: 20px;
-    position: relative; /* Ensure positioning context for badge */
+    margin-left: 1.5rem;
+    position: relative;
 }
 
 .navbar-link {
-    color: black;
+    color: #fff;
     text-decoration: none;
-    font-size: 18px;
-    transition: color 0.3s ease;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
 }
 
 .navbar-link:hover {
-    color: #007bff;
+    color: #ffd700;
 }
 
-.navbar-item i {
-    font-size: 24px;
-    position: relative; /* Ensure positioning context for badge */
+.register-link {
+    background-color: #ffd700;
+    color: #000;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 600;
 }
 
+.register-link:hover {
+    background-color: #ffc800;
+    color: #000;
+}
+
+/* Ikonice */
+.cart-icon, .theme-toggle-button {
+    font-size: 1.7rem;
+    display: flex;
+    align-items: center;
+}
+
+.acc-icon {
+    font-size: 1.7rem;
+}
+
+.chart {
+    font-size: 1.7rem;
+}
+
+.cart-badge {
+    background-color: #ff0000;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+}
+
+.theme-toggle-button {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+/* Hamburger meni */
 .navbar-hamburger {
     display: none;
     background: none;
     border: none;
+    color: #fff;
+    font-size: 1.5rem;
     cursor: pointer;
-    font-size: 24px;
 }
 
-.theme-toggle-button {
-    border: none;
-    background-color: transparent;
-    margin-left: -10px;
-}
-
-.theme-toggle-button:hover {
-    color: #007bff;
-}
-
-/* Dark theme styles */
-.dark-theme body {
-    background-color: #121212;
-    color: white;
-}
-
-.dark-theme .navbar {
-    background-color: #333;
-    border-color: #555;
-}
-
-.dark-theme .navbar-link {
-    color: white;
-}
-
-.dark-theme .navbar-link:hover {
-    color: #ffcc00;
-}
-
-.dark-theme .theme-toggle-button {
-    background-color: transparent;
-    color: white;
-}
-
-.dark-theme .theme-toggle-button:hover {
-    color: #e6b800;
-}
-
-.cart-badge {
-    position: absolute;
-    top: -10px; /* Adjust based on the icon size */
-    right: -10px; /* Adjust based on the icon size */
-    background-color: red;
-    color: white;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 12px;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1; /* Ensure it appears above other elements */
-}
-
-/* Mobile View Styles */
+/* Responsive stilovi */
 @media (max-width: 768px) {
-
-    .navbar-container {
-        position: relative;
-    }
     .navbar-menu {
-        display: none;
-        flex-direction: column;
-        position: absolute;
-        top: 60px;
-        right: 0;
-        background-color: #fff;
+        position: fixed;
+        top: 70px;
+        left: -100%;
         width: 100%;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        z-index: 1001;
-        padding: 0;
+        height: calc(100vh - 70px);
+        background-color: #000;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 2rem;
+        transition: left 0.3s ease;
     }
 
     .navbar-menu.active {
-        display: flex;
-        width: 100px;
-        align-items: center;
-        justify-content: center;
+        left: 0;
+    }
+
+    .navbar-item {
+        margin: 1rem 0;
     }
 
     .navbar-hamburger {
         display: block;
-        margin-left: 480%;
     }
 
-    .navbar-item {
-        margin: 1px 0;
-        text-align: center;
+    .navbar-right {
+        display: none;
     }
 
-    .navbar-link {
-        display: block;
-        padding: 10px;
+    .navbar-right.active {
+        display: flex;
     }
+}
 
-    .navbar-logo {
-        left: -150px;
-        position: absolute;
-    }
+/* Animacija za hover efekat */
+.navbar-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -5px;
+    left: 0;
+    background-color: #ffd700;
+    transition: width 0.3s;
+}
+
+.navbar-link:hover::after {
+    width: 100%;
 }

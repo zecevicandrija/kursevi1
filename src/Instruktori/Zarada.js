@@ -23,7 +23,7 @@ const Zarada = ({ kursevi }) => {
 
     const fetchKupovine = async () => {
         try {
-            const response = await fetch('https://horses-1.onrender.com/api/kupovina/popularity');
+            const response = await fetch('http://localhost:5000/api/kupovina/popularity');
             if (response.ok) {
                 const data = await response.json();
                 return data; // Assuming it returns an array with course IDs and purchase counts

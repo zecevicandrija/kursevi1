@@ -40,81 +40,83 @@ const Navbar = () => {
     return (
         <nav className={`navbar ${isDarkTheme ? 'dark' : ''}`}>
             <div className="navbar-container">
-                <Link to="/" className="navbar-logo">
-                    <img src={undologoo} alt='logo' className='logo' />
-                </Link>
-                <button className="navbar-hamburger" onClick={handleMenuToggle}>
-                    <i className="ri-menu-line"></i>
-                </button>
-                <ul className={`navbar-menu ${isMenuOpen ? 'active' : ''}`}>
-                    <li className="navbar-item">
-                        <Link to="/" className="navbar-link">Početna</Link>
-                    </li>
-                    <li className="navbar-item">
-                        <Link to="/kursevi" className="navbar-link">Kursevi</Link>
-                    </li>
-                    {!user ? (
-                        <>
-                            <li className="navbar-item">
-                                <Link to="/signup" className="navbar-link">Registracija</Link>
-                            </li>
-                            <li className="navbar-item">
-                                <Link to="/login" className="navbar-link">Login</Link>
-                            </li>
-                        </>
-                    ) : (
-                        <>
-                            {(user.uloga === 'admin' || user.uloga === 'instruktor') && (
-                                <>
-                                    <li className="navbar-item">
-                                        <Link to="/lekcije" className="navbar-link">Napravi Lekciju</Link>
-                                    </li>
-                                    <li className="navbar-item">
-                                        <Link to="/dodajkurs" className="navbar-link">Napravi Kurs</Link>
-                                    </li>
-                                </>
-                            )}
+                <div className="navbar-left">
+                    <Link to="/" className="navbar-logo">
+                        <img src={undologoo} alt='logo' className='logo' />
+                    </Link>
+                </div>
 
-                            <li className="navbar-item">
-                                <Link to="/kupljenkurs" className="navbar-link">Vaši Kursevi</Link>
-                            </li>
-                            <li className="navbar-item">
-                                <Link to="/korpa" className="navbar-link">
-                                    <i className="ri-shopping-cart-2-line"></i>
-                                    {/* Show cart badge only if there are items in the cart */}
-                                    {cartItemCount > 0 && (
-                                        <span className="cart-badge">{cartItemCount}</span>
-                                    )}
-                                </Link>
-                            </li>
+                <div className="navbar-right">
+                    <ul className={`navbar-menu ${isMenuOpen ? 'active' : ''}`}>
+                        <li className="navbar-item">
+                            <Link to="/" className="navbar-link">POČETNA</Link>
+                        </li>
+                        <li className="navbar-item">
+                            <Link to="/kursevi" className="navbar-link">KURSEVI</Link>
+                        </li>
+                        {/* <li className="navbar-item">
+                            <Link to="/o-nama" className="navbar-link">O NAMA</Link>
+                        </li>
+                        <li className="navbar-item">
+                            <Link to="/usluge" className="navbar-link">USLUGE</Link>
+                        </li>
+                        <li className="navbar-item">
+                            <Link to="/kontakt" className="navbar-link">KONTAKT</Link>
+                        </li> */}
 
-                            {(user.uloga === 'instruktor' || user.uloga === 'admin') && (
-                                <>
+                        {!user ? (
+                            <>
+                                <li className="navbar-item auth-item">
+                                    <Link to="/login" className="navbar-link">LOGIN</Link>
+                                </li>
+                                <li className="navbar-item auth-item">
+                                    <Link to="/signup" className="navbar-link register-link">REGISTRACIJA</Link>
+                                </li>
+                            </>
+                        ) : (
+                            <>
+                                <li className="navbar-item">
+                                    <Link to="/kupljenkurs" className="navbar-link">MOJI KURSEVI</Link>
+                                </li>
+                                <li className="navbar-item">
+                                    <Link to="/korpa" className="navbar-link cart-icon">
+                                        <i className="ri-shopping-cart-2-line"></i>
+                                        {cartItemCount > 0 && (
+                                            <span className="cart-badge">{cartItemCount}</span>
+                                        )}
+                                    </Link>
+                                </li>
+                                <li className="navbar-item">
+                                    <Link to="/profil" className="navbar-link acc-icon">
+                                        <i className="ri-account-circle-line"></i>
+                                    </Link>
+                                </li>
+
+                                {(user.uloga === 'admin' || user.uloga === 'instruktor') && (
                                     <li className="navbar-item">
-                                        <Link to="/instruktor" className="navbar-link">
+                                        <Link to="/instruktor" className="navbar-link chart">
                                             <i className="ri-line-chart-line"></i>
                                         </Link>
                                     </li>
-                                </>
-                            )}
+                                )}
+                            </>
+                        )}
 
-                            <li className="navbar-item">
-                                <Link to="/profil" className="navbar-link">
-                                    <i className="ri-account-circle-line"></i>
-                                </Link>
-                            </li>
-                        </>
-                    )}
-                    <li className="navbar-item">
-                        <button className="theme-toggle-button" onClick={toggleTheme}>
-                            {isDarkTheme ? (
-                                <i className="ri-moon-line"></i>
-                            ) : (
-                                <i className="ri-sun-line"></i>
-                            )}
-                        </button>
-                    </li>
-                </ul>
+                        {/* <li className="navbar-item theme-item">
+                            <button className="theme-toggle-button" onClick={toggleTheme}>
+                                {isDarkTheme ? (
+                                    <i className="ri-moon-line"></i>
+                                ) : (
+                                    <i className="ri-sun-line"></i>
+                                )}
+                            </button>
+                        </li> */}
+                    </ul>
+                </div>
+
+                <button className="navbar-hamburger" onClick={handleMenuToggle}>
+                    <i className="ri-menu-line"></i>
+                </button>
             </div>
         </nav>
     );

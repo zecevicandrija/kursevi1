@@ -29,7 +29,7 @@ const Instruktor = () => {
         const fetchTotalEarnings = async () => {
             if (instructorId) {
                 try {
-                    const response = await fetch(`https://horses-1.onrender.com/api/kupovina/zarada/${instructorId}`);
+                    const response = await fetch(`http://localhost:5000/api/kupovina/zarada/${instructorId}`);
                     if (response.ok) {
                         const data = await response.json();
                         setTotalEarnings(data.totalEarnings);
@@ -81,7 +81,7 @@ const Instruktor = () => {
         }
     
         try {
-            const response = await fetch(`https://horses-1.onrender.com/api/kursevi/${editingCourse.id}`, {
+            const response = await fetch(`http://localhost:5000/api/kursevi/${editingCourse.id}`, {
                 method: 'PUT',
                 body: formData,
             });
@@ -105,7 +105,7 @@ const Instruktor = () => {
 const fetchKursevi = async () => {
     if (instructorId) {
         try {
-            const response = await fetch(`https://horses-1.onrender.com/api/kursevi/instruktor/${instructorId}`);
+            const response = await fetch(`http://localhost:5000/api/kursevi/instruktor/${instructorId}`);
             if (response.ok) {
                 const data = await response.json();
                 setKursevi(data);  // This will trigger a re-render
@@ -128,7 +128,7 @@ const fetchKursevi = async () => {
     const handleDelete = async (kursId) => {
         if (window.confirm('Da li ste sigurni da želite da obrišete ovaj kurs?')) {
             try {
-                const response = await fetch(`https://horses-1.onrender.com/api/kursevi/${kursId}`, {
+                const response = await fetch(`http://localhost:5000/api/kursevi/${kursId}`, {
                     method: 'DELETE',
                 });
 
@@ -150,7 +150,7 @@ const fetchKursevi = async () => {
     const handleShowLessons = async (course) => {
         setSelectedCourse(course);
         try {
-            const response = await fetch(`https://horses-1.onrender.com/api/lekcije/course/${course.id}`);
+            const response = await fetch(`http://localhost:5000/api/lekcije/course/${course.id}`);
             if (response.ok) {
                 const data = await response.json();
                 setLessons(data);
@@ -191,13 +191,13 @@ const fetchKursevi = async () => {
         if (videoFile) formData.append('video', videoFile); // Append video file if available
 
         try {
-            const response = await fetch(`https://horses-1.onrender.com/api/lekcije/${editingLesson.id}`, {
+            const response = await fetch(`http://localhost:5000/api/lekcije/${editingLesson.id}`, {
                 method: 'PUT',
                 body: formData,
             });
             if (response.ok) {
                 // Refetch the lessons
-                const response = await fetch(`https://horses-1.onrender.com/api/lekcije/course/${selectedCourse.id}`);
+                const response = await fetch(`http://localhost:5000/api/lekcije/course/${selectedCourse.id}`);
                 if (response.ok) {
                     const data = await response.json();
                     setLessons(data);
@@ -218,7 +218,7 @@ const fetchKursevi = async () => {
     const handleDeleteLesson = async (lessonId) => {
         if (window.confirm('Da li ste sigurni da želite da obrišete ovu lekciju?')) {
             try {
-                const response = await fetch(`https://horses-1.onrender.com/api/lekcije/${lessonId}`, {
+                const response = await fetch(`http://localhost:5000/api/lekcije/${lessonId}`, {
                     method: 'DELETE'
                 });
                 if (response.ok) {
