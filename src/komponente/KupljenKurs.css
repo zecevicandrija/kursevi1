@@ -2,10 +2,10 @@
 
 .kupljeni-kursevi-container1 {
     padding: 2rem;
-    background-color: #0c0c0c;
     color: #ffffff;
     min-height: 100vh;
     font-family: 'Montserrat', sans-serif;
+    margin-top: 2%;
 }
 
 .naslovkupljeni1 {
@@ -197,7 +197,9 @@
     .kurs-list1 {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     }
-    
+    .kupljeni-kursevi-container1 {
+        margin-top: 40px;
+    }
     .naslovkupljeni1 {
         font-size: 2rem;
     }

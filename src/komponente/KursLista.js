@@ -154,7 +154,7 @@ const KursLista = () => {
                         )}
                         <p className="kurs-naziv">{kurs.naziv}</p>
                         {/* <p className="kurs-opis">{kurs.opis}</p> */}
-                        <p className="kurs-cena">${kurs.cena}</p>
+                        <p className="kurs-cena">{kurs.cena}rsd</p>
                         <p className="kurs-instruktor">{instruktori[String(kurs.instruktor_id)] || 'Nepoznati'}</p>
                         <p className="kurs-datum">{new Date(kurs.created_at).toLocaleDateString()}</p>
                         <div className="kurs-rating">

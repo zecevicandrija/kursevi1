@@ -90,6 +90,10 @@
     transform: scale(1.01); /* Slightly scale up the image on hover */
 }
 
+.kurs-cena {
+    color: black;
+}
+
 .search-input {
     display: block;
     margin: 0 auto 20px;

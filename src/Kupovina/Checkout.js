@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 // Dodaj CSS fajl po potrebi
-// import './Checkout.css'; 
+ import './Checkout.css'; 
 
 const Checkout = () => {
     const location = useLocation();
@@ -68,25 +68,46 @@ const Checkout = () => {
             <h2>Završetak Kupovine</h2>
             <div className="order-summary">
                 <h3>Pregled porudžbine:</h3>
-                <p>Kurs: <strong>{items[0].naziv}</strong></p>
-                <p>Cena: <strong>{items[0].cena}$</strong></p>
+                <p>Naziv: <strong>{items[0].naziv}</strong></p>
+                <p>Cena: <strong>{items[0].cena}rsd</strong></p>
                 {/* Ovde možeš dodati mapiranje ako ima više kurseva */}
             </div>
             
             <form onSubmit={handleSubmit} className="checkout-form">
                 <h3>Vaši podaci</h3>
                 <div className="form-group">
-                    <label htmlFor="ime">Ime</label>
-                    <input type="text" id="ime" value={ime} onChange={(e) => setIme(e.target.value)} required />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="prezime">Prezime</label>
-                    <input type="text" id="prezime" value={prezime} onChange={(e) => setPrezime(e.target.value)} required />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="email">Email adresa</label>
-                    <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                </div>
+    <label htmlFor="ime">Ime</label>
+    <input 
+        type="text" 
+        id="ime" 
+        value={ime} 
+        onChange={(e) => setIme(e.target.value)} 
+        placeholder="Unesite Vaše ime"
+        required 
+    />
+</div>
+<div className="form-group">
+    <label htmlFor="prezime">Prezime</label>
+    <input 
+        type="text" 
+        id="prezime" 
+        value={prezime} 
+        onChange={(e) => setPrezime(e.target.value)} 
+        placeholder="Unesite Vaše prezime"
+        required 
+    />
+</div>
+<div className="form-group">
+    <label htmlFor="email">Email adresa</label>
+    <input 
+        type="email" 
+        id="email" 
+        value={email} 
+        onChange={(e) => setEmail(e.target.value)} 
+        placeholder="primer@gmail.com"
+        required 
+    />
+</div>
                 
                 {error && <p className="error-message">{error}</p>}
                 

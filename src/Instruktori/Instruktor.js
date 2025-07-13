@@ -245,7 +245,7 @@ const fetchKursevi = async () => {
                                 )}
                                 <p className="kurs-naziv">{kurs.naziv}</p>
                                 <p className="kurs-opis">{kurs.opis}</p>
-                                <p className="kurs-cena">{kurs.cena}$</p>
+                                <p className="kurs-cena">{kurs.cena}rsd</p>
                                 <p className="kurs-datum">Datum Kreiranja: {new Date(kurs.created_at).toLocaleDateString()}</p>
                                 <button onClick={() => handleDelete(kurs.id)} className="delete-button2"><i className="ri-delete-bin-line"></i></button>
                                 <button onClick={() => viewStudents(kurs.id)} className="view-students-button"><i className="ri-graduation-cap-line"></i></button>

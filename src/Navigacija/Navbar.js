@@ -4,6 +4,7 @@ import { useAuth } from '../login/auth';
 import './Navbar.css';
 import undologoo from '../images/undologoo.jpg';
 import { ThemeContext } from '../komponente/ThemeContext'; // Import ThemeContext
+import motionlogo from '../images/motionacademylogo.png'
 
 const Navbar = () => {
     const { user, logout } = useAuth();
@@ -42,7 +43,7 @@ const Navbar = () => {
             <div className="navbar-container">
                 <div className="navbar-left">
                     <Link to="/" className="navbar-logo">
-                        <img src={undologoo} alt='logo' className='logo' />
+                        <img src={motionlogo} alt='logo' className='logo' />
                     </Link>
                 </div>
 
