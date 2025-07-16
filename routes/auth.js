@@ -82,4 +82,38 @@ router.get('/me', authMiddleware, async (req, res) => {
     }
 });
 
+router.post('/change-password', authMiddleware, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const userId = req.user.id; // Uzimamo ID iz tokena, ne iz zahteva! Ovo je sigurnije.
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'Potrebno je uneti trenutnu i novu lozinku.' });
+        }
+
+        // 1. Dohvatamo trenutnu hešovanu lozinku iz baze
+        const [users] = await db.query('SELECT sifra FROM korisnici WHERE id = ?', [userId]);
+        if (users.length === 0) {
+            return res.status(404).json({ message: 'Korisnik nije pronađen.' });
+        }
+        const user = users[0];
+
+        // 2. Poredimo trenutnu lozinku koju je korisnik uneo sa onom u bazi
+        const isMatch = await bcrypt.compare(currentPassword, user.sifra);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Trenutna lozinka nije ispravna.' });
+        }
+
+        // 3. Ako je sve u redu, hešujemo novu lozinku i ažuriramo je u bazi
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        await db.query('UPDATE korisnici SET sifra = ? WHERE id = ?', [hashedNewPassword, userId]);
+
+        res.status(200).json({ message: 'Lozinka uspešno promenjena.' });
+
+    } catch (error) {
+        console.error('Greška prilikom promene lozinke:', error);
+        res.status(500).json({ error: 'Greška na serveru.' });
+    }
+});
+
 module.exports = router;

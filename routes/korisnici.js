@@ -46,35 +46,43 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try {
         const userId = req.params.id;
-        const { ime, prezime, email, sifra, uloga } = req.body;
+        const { ime, prezime, email, sifra } = req.body;
 
-        let hashedPassword;
+        const fieldsToUpdate = {};
+
+        // Proveravamo svako polje i dodajemo ga u objekat za ažuriranje samo ako postoji
+        if (ime) fieldsToUpdate.ime = ime;
+        if (prezime) fieldsToUpdate.prezime = prezime;
+        if (email) fieldsToUpdate.email = email;
+        
+        // Lozinku hešujemo samo ako je poslata nova
         if (sifra) {
-            hashedPassword = await bcrypt.hash(sifra, 10);
+            fieldsToUpdate.sifra = await bcrypt.hash(sifra, 10);
         }
 
-        let query = 'UPDATE korisnici SET ime = ?, prezime = ?, email = ?, uloga = ?';
-        let queryParams = [ime, prezime, email, uloga];
-
-        if (sifra) {
-            query += ', sifra = ?';
-            queryParams.push(hashedPassword);
+        // Ako nijedno polje nije poslato za ažuriranje, vraćamo grešku
+        if (Object.keys(fieldsToUpdate).length === 0) {
+            return res.status(400).json({ message: 'Nema podataka za ažuriranje.' });
         }
 
-        query += ' WHERE id = ?';
-        queryParams.push(userId);
+        // Dinamički kreiramo SQL upit
+        const setClauses = Object.keys(fieldsToUpdate).map(key => `${key} = ?`).join(', ');
+        const queryValues = Object.values(fieldsToUpdate);
 
-        const [results] = await db.query(query, queryParams);
+        const query = `UPDATE korisnici SET ${setClauses} WHERE id = ?`;
+        queryValues.push(userId); // Dodajemo ID korisnika na kraj parametara
+
+        const [results] = await db.query(query, queryValues);
 
         if (results.affectedRows === 0) {
             return res.status(404).json({ message: `Korisnik sa ID-jem ${userId} nije pronađen.` });
         }
 
-        res.status(200).json({ message: `Korisnik sa ID-jem ${userId} uspešno ažuriran.` });
+        res.status(200).json({ message: `Profil korisnika je uspešno ažuriran.` });
 
     } catch (error) {
-        console.error('Database error:', error);
-        res.status(500).json({ error: 'Greška na serveru' });
+        console.error('Database error during update:', error);
+        res.status(500).json({ error: 'Greška na serveru.' });
     }
 });
 

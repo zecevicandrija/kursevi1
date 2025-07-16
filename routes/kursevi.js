@@ -1,23 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
-const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
+const db = require('../db');
+const uploadToBunny = require('../utils/bunnyHelper'); // Uvozimo naš Bunny.net helper
 
+// Multer ostaje isti
 const upload = multer({ storage: multer.memoryStorage() });
-
-// Pomoćna funkcija koja "pretvara" Cloudinary upload u Promise
-const uploadToCloudinary = (fileBuffer) => {
-    return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream({ resource_type: 'image' }, (error, result) => {
-            if (error) {
-                return reject(error);
-            }
-            resolve(result);
-        });
-        stream.end(fileBuffer);
-    });
-};
 
 // GET Svi kursevi
 router.get('/', async (req, res) => {
@@ -37,7 +25,6 @@ router.get('/:id', async (req, res) => {
         const courseId = req.params.id;
         const query = 'SELECT * FROM kursevi WHERE id = ?';
         const [results] = await db.query(query, [courseId]);
-
         if (results.length === 0) {
             return res.status(404).json({ error: 'Kurs nije pronađen' });
         }
@@ -61,22 +48,21 @@ router.get('/instruktor/:id', async (req, res) => {
     }
 });
 
-// POST Novi kurs sa slikom
+
+// --- POST Novi kurs sa slikom ---
 router.post('/', upload.single('slika'), async (req, res) => {
     try {
-        const { naziv, opis, instruktor_id, cena, lemon_squeezy_variant_id } = req.body;
+        const { naziv, opis, instruktor_id, cena, is_subscription, lemon_squeezy_variant_id } = req.body;
 
         if (!naziv || !opis || !instruktor_id || cena === undefined || !req.file) {
             return res.status(400).json({ error: 'Nedostaju obavezna polja ili slika.' });
         }
 
-        // 1. Sačekaj da se slika otpremi na Cloudinary
-        const cloudinaryResult = await uploadToCloudinary(req.file.buffer);
-        const slikaUrl = cloudinaryResult.secure_url;
+        const uniqueFileName = `slika-kursa-${Date.now()}-${req.file.originalname.replace(/\s/g, '_')}`;
+        const slikaUrl = await uploadToBunny(req.file.buffer, uniqueFileName);
 
-        // 2. Sačekaj da se podaci upišu u bazu
-        const query = 'INSERT INTO kursevi (naziv, opis, instruktor_id, cena, slika, lemon_squeezy_variant_id) VALUES (?, ?, ?, ?, ?, ?)';
-        const [dbResult] = await db.query(query, [naziv, opis, instruktor_id, cena, slikaUrl, lemon_squeezy_variant_id]);
+        const query = 'INSERT INTO kursevi (naziv, opis, instruktor_id, cena, slika, is_subscription, lemon_squeezy_variant_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        const [dbResult] = await db.query(query, [naziv, opis, instruktor_id, cena, slikaUrl, is_subscription || 0, lemon_squeezy_variant_id]);
         
         res.status(201).json({ message: 'Kurs uspešno dodat', courseId: dbResult.insertId });
     } catch (error) {
@@ -85,31 +71,32 @@ router.post('/', upload.single('slika'), async (req, res) => {
     }
 });
 
-// PUT Ažuriranje kursa sa (opciono) novom slikom
+
+// --- PUT Ažuriranje kursa sa (opciono) novom slikom ---
 router.put('/:id', upload.single('slika'), async (req, res) => {
     try {
         const courseId = req.params.id;
-        const { naziv, opis, cena, instruktor_id, lemon_squeezy_variant_id } = req.body;
+        const { naziv, opis, cena, instruktor_id, is_subscription, lemon_squeezy_variant_id } = req.body;
 
-        if (!naziv && !opis && !cena && !instruktor_id && !lemon_squeezy_variant_id && !req.file) {
+        const fieldsToUpdate = {};
+        if (naziv) fieldsToUpdate.naziv = naziv;
+        if (opis) fieldsToUpdate.opis = opis;
+        if (cena) fieldsToUpdate.cena = cena;
+        if (instruktor_id) fieldsToUpdate.instruktor_id = instruktor_id;
+        if (is_subscription !== undefined) fieldsToUpdate.is_subscription = is_subscription;
+        if (lemon_squeezy_variant_id) fieldsToUpdate.lemon_squeezy_variant_id = lemon_squeezy_variant_id;
+
+        if (req.file) {
+            const uniqueFileName = `slika-kursa-${Date.now()}-${req.file.originalname.replace(/\s/g, '_')}`;
+            fieldsToUpdate.slika = await uploadToBunny(req.file.buffer, uniqueFileName);
+        }
+
+        if (Object.keys(fieldsToUpdate).length === 0) {
             return res.status(400).json({ error: 'Nema polja za ažuriranje' });
         }
 
-        const updateFields = {};
-        if (naziv) updateFields.naziv = naziv;
-        if (opis) updateFields.opis = opis;
-        if (cena) updateFields.cena = cena;
-        if (instruktor_id) updateFields.instruktor_id = instruktor_id;
-        if (lemon_squeezy_variant_id) updateFields.lemon_squeezy_variant_id = lemon_squeezy_variant_id;
-
-        // Ako je poslata nova slika, otpremi je i dodaj URL u polja za ažuriranje
-        if (req.file) {
-            const cloudinaryResult = await uploadToCloudinary(req.file.buffer);
-            updateFields.slika = cloudinaryResult.secure_url;
-        }
-
         const query = 'UPDATE kursevi SET ? WHERE id = ?';
-        const [results] = await db.query(query, [updateFields, courseId]);
+        const [results] = await db.query(query, [fieldsToUpdate, courseId]);
 
         if (results.affectedRows === 0) {
             return res.status(404).json({ error: 'Kurs nije pronađen' });
@@ -122,7 +109,8 @@ router.put('/:id', upload.single('slika'), async (req, res) => {
     }
 });
 
-// DELETE Brisanje kursa
+
+// --- DELETE Brisanje kursa (ostaje isto) ---
 router.delete('/:id', async (req, res) => {
     try {
         const courseId = req.params.id;

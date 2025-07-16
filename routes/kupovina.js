@@ -95,3 +95,63 @@ router.get('/zarada-po-danu', async (req, res) => {
 });
 
 module.exports = router;
+
+// U fajlu: backend/routes/kupovina.js
+
+// NOVA RUTA ZA STATISTIKU KURSA
+router.get('/statistika/:kursId', async (req, res) => {
+    try {
+        const { kursId } = req.params;
+        const { startDate, endDate } = req.query;
+
+        if (!startDate || !endDate) {
+            return res.status(400).json({ error: 'Početni i krajnji datum su obavezni.' });
+        }
+
+        // Osnovni upit za filtriranje po kursu i datumu
+        let params = [kursId, startDate, `${endDate} 23:59:59`];
+        let query = `
+            SELECT 
+                p.datum_kupovine,
+                k.cena * (1 - IFNULL(pop.procenat / 100, 0)) AS cena_sa_popustom
+            FROM kupovina p
+            JOIN kursevi k ON p.kurs_id = k.id
+            LEFT JOIN popusti pop ON p.popust_id = pop.id
+            WHERE p.kurs_id = ? AND p.datum_kupovine BETWEEN ? AND ?
+        `;
+
+        const [kupovine] = await db.query(query, params);
+
+        // Izračunavanje ukupnih vrednosti
+        const totalSales = kupovine.length;
+        const totalRevenue = kupovine.reduce((sum, kupovina) => sum + Number(kupovina.cena_sa_popustom), 0);
+        
+        // Priprema podataka za chart
+        const salesByDate = {};
+        kupovine.forEach(k => {
+            const date = new Date(k.datum_kupovine).toISOString().split('T')[0]; // Format YYYY-MM-DD
+            if (!salesByDate[date]) {
+                salesByDate[date] = { sales: 0, revenue: 0 };
+            }
+            salesByDate[date].sales += 1;
+            salesByDate[date].revenue += Number(k.cena_sa_popustom);
+        });
+
+        const chartData = Object.keys(salesByDate).map(date => ({
+            date,
+            sales: salesByDate[date].sales,
+            revenue: salesByDate[date].revenue,
+        })).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+
+        res.status(200).json({
+            totalSales,
+            totalRevenue,
+            chartData
+        });
+
+    } catch (error) {
+        console.error('Greška pri dohvatanju statistike:', error);
+        res.status(500).json({ error: 'Greška na serveru.' });
+    }
+});

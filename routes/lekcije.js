@@ -1,22 +1,83 @@
 const express = require('express');
 const router = express.Router();
-const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const db = require('../db');
+// Uvozimo ispravne funkcije iz našeg Bunny.js helpera
+const { createVideo, uploadVideo, getPlayerUrl } = require('../utils/bunny');
 
-// Multer konfiguracija ostaje ista
+// Multer ostaje isti, on samo priprema fajl u memoriji
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Pomoćna funkcija koja "pretvara" Cloudinary upload u Promise
-const uploadToCloudinary = (fileBuffer) => {
-    return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream({ resource_type: 'video' }, (error, result) => {
-            if (error) return reject(error);
-            resolve(result);
-        });
-        stream.end(fileBuffer);
-    });
-};
+
+// --- POST Dodavanje lekcije (Nova, ispravna logika) ---
+router.post('/', upload.single('video'), async (req, res) => {
+    try {
+        const { course_id, title, content, section, assignment } = req.body;
+        if (!course_id || !title || !content || !req.file) {
+            return res.status(400).json({ error: 'Sva polja i video su obavezni.' });
+        }
+        
+        const videoObject = await createVideo(title);
+        const videoGuid = videoObject.guid;
+
+        await uploadVideo(videoGuid, req.file.buffer);
+
+        const query = 'INSERT INTO lekcije (course_id, title, content, video_url, section, assignment) VALUES (?, ?, ?, ?, ?, ?)';
+        await db.query(query, [course_id, title, content, videoGuid, section, assignment || null]);
+        
+        res.status(201).json({ message: 'Lekcija i video su uspešno dodati.' });
+    } catch (error) {
+        console.error('Greška pri dodavanju lekcije:', error);
+        res.status(500).json({ error: 'Došlo je do greške na serveru.' });
+    }
+});
+
+// --- PUT Ažuriranje lekcije (Nova, ispravna logika) ---
+router.put('/:id', upload.single('video'), async (req, res) => {
+    try {
+        const lessonId = req.params.id;
+        const { course_id, title, content, section, video_url, assignment } = req.body;
+        if (!course_id || !title || !content) {
+            return res.status(400).json({ error: 'Nedostaju obavezna polja.' });
+        }
+
+        let newVideoUrl = video_url || '';
+        if (req.file) {
+            const videoObject = await createVideo(title);
+            const videoGuid = videoObject.guid;
+            await uploadVideo(videoGuid, req.file.buffer);
+            newVideoUrl = videoGuid;
+        }
+
+        const query = 'UPDATE lekcije SET course_id = ?, title = ?, content = ?, video_url = ?, section = ?, assignment = ? WHERE id = ?';
+        await db.query(query, [course_id, title, content, newVideoUrl, section, assignment, lessonId]);
+        
+        res.status(200).json({ message: `Lekcija sa ID-jem ${lessonId} uspešno ažurirana.` });
+    } catch (error) {
+        console.error('Greška pri ažuriranju lekcije:', error);
+        res.status(500).json({ error: 'Došlo je do greške na serveru.' });
+    }
+});
+
+// --- NOVA RUTA: Dobijanje sigurnog linka za video ---
+router.get('/:id/stream', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [lekcije] = await db.query('SELECT video_url FROM lekcije WHERE id = ?', [id]);
+
+        if (lekcije.length === 0 || !lekcije[0].video_url) {
+            return res.status(404).json({ error: 'Video nije pronađen.' });
+        }
+
+        const videoId = lekcije[0].video_url;
+        const playerUrl = getPlayerUrl(videoId); // Koristimo ispravnu funkciju
+
+        res.json({ url: playerUrl });
+    } catch (error) {
+        console.error('Greška pri generisanju linka:', error);
+        res.status(500).json({ error: 'Greška na serveru.' });
+    }
+});
 
 // GET Sve lekcije
 router.get('/', async (req, res) => {
@@ -41,73 +102,15 @@ router.get('/course/:courseId', async (req, res) => {
     }
 });
 
-// POST Dodavanje lekcije
-router.post('/', upload.single('video'), async (req, res) => {
-    try {
-        const { course_id, title, content, section, assignment } = req.body;
-
-        if (!course_id || !title || !content) {
-            return res.status(400).json({ error: 'Missing required fields' });
-        }
-        
-        let videoUrl = '';
-        if (req.file) {
-            const result = await uploadToCloudinary(req.file.buffer);
-            videoUrl = result.secure_url;
-        }
-
-        const query = 'INSERT INTO lekcije (course_id, title, content, video_url, section, assignment) VALUES (?, ?, ?, ?, ?, ?)';
-        const [results] = await db.query(query, [course_id, title, content, videoUrl, section, assignment || null]);
-        
-        res.status(201).json({ message: 'Lesson added successfully', lessonId: results.insertId });
-    } catch (error) {
-        console.error('Error adding lesson:', error);
-        res.status(500).json({ error: 'Internal server error', details: error.message });
-    }
-});
-
-// PUT Ažuriranje lekcije
-router.put('/:id', upload.single('video'), async (req, res) => {
-    try {
-        const lessonId = req.params.id;
-        const { course_id, title, content, section, video_url, assignment } = req.body;
-
-        if (!course_id || !title || !content) {
-            return res.status(400).json({ error: 'Missing required fields' });
-        }
-
-        let newVideoUrl = video_url || ''; // Ako se stari URL obriše na frontendu
-
-        if (req.file) {
-            const result = await uploadToCloudinary(req.file.buffer);
-            newVideoUrl = result.secure_url;
-        }
-
-        const query = 'UPDATE lekcije SET course_id = ?, title = ?, content = ?, video_url = ?, section = ?, assignment = ? WHERE id = ?';
-        const [results] = await db.query(query, [course_id, title, content, newVideoUrl, section, assignment, lessonId]);
-        
-        if (results.affectedRows === 0) {
-            return res.status(404).json({ message: `Lesson with ID ${lessonId} not found.` });
-        }
-        
-        res.status(200).json({ message: `Lesson with ID ${lessonId} updated successfully` });
-    } catch (error) {
-        console.error('Error updating lesson:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
 // DELETE Brisanje lekcije
 router.delete('/:id', async (req, res) => {
     try {
         const lessonId = req.params.id;
         const [results] = await db.query('DELETE FROM lekcije WHERE id = ?', [lessonId]);
-        
         if (results.affectedRows === 0) {
-            return res.status(404).json({ message: `Lesson with ID ${lessonId} not found.` });
+            return res.status(404).json({ message: `Lekcija sa ID-jem ${lessonId} nije pronađena.` });
         }
-
-        res.status(200).json({ message: `Lesson with ID ${lessonId} deleted successfully` });
+        res.status(200).json({ message: `Lekcija sa ID-jem ${lessonId} uspešno obrisana.` });
     } catch (err) {
         console.error('Database error:', err);
         res.status(500).json({ error: 'Database error' });
@@ -138,17 +141,14 @@ router.get('/count/:courseId', async (req, res) => {
     }
 });
 
-// DeepSeek AI ruta - NIJE POTREBNA IZMENA
+// DeepSeek AI ruta
 router.post('/deepseek-review', async (req, res) => {
     const { code, language } = req.body;
-
     try {
-        // Ovaj deo koda ne koristi našu bazu, već poziva spoljni API
-        // i već je ispravno napisan koristeći async/await.
         const response = await fetch('https://api.deepseek.com/chat/completions', {
             method: 'POST',
             headers: {
-                "Authorization": `Bearer ${process.env.DEEPSEEK_KEY}`, // Koristimo .env varijablu
+                "Authorization": `Bearer ${process.env.DEEPSEEK_KEY}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -159,13 +159,7 @@ router.post('/deepseek-review', async (req, res) => {
                 ],
             })
         });
-
-        if (!response.ok) {
-            const errorBody = await response.text();
-            console.error('DeepSeek API error response:', errorBody);
-            throw new Error(`DeepSeek API returned status ${response.status}`);
-        }
-
+        if (!response.ok) throw new Error(`DeepSeek API returned status ${response.status}`);
         const data = await response.json();
         const reply = data?.choices?.[0]?.message?.content || 'Greška u AI odgovoru.';
         res.json({ success: true, message: reply });
