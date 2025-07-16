@@ -27,7 +27,7 @@ const DodajKurs = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/kursevi', {
+            const response = await fetch('https://horses-1.onrender.com/api/kursevi', {
                 method: 'POST',
                 body: formData,
             });

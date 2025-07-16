@@ -1,196 +1,166 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './auth';
-import { useNavigate } from 'react-router-dom';
+import api from './api';
 import './MojProfil.css';
 
 const MojProfil = () => {
-  const { user, updateUser, logout } = useAuth();
-  const [wishlist, setWishlist] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const navigate = useNavigate();
+    const { user, logout, setUser: setAuthUser } = useAuth();
+    
+    const [formData, setFormData] = useState({
+        ime: '',
+        prezime: '',
+        email: '',
+        currentPassword: '',
+        newPassword: ''
+    });
 
-  useEffect(() => {
-    const fetchWishlist = async () => {
-      if (user) {
-        try {
-          const response = await fetch(`http://localhost:5000/api/wishlist/${user.id}`);
-          if (response.ok) {
-            const data = await response.json();
-            setWishlist(data);
-          } else {
-            console.error('Failed to fetch wishlist');
-          }
-        } catch (error) {
-          console.error('Error:', error);
+    const [wishlist, setWishlist] = useState([]);
+    const [message, setMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const fetchWishlist = useCallback(async () => {
+        if (user) {
+            try {
+                const response = await api.get(`/api/wishlist/${user.id}`);
+                setWishlist(response.data);
+            } catch (error) {
+                console.error('Greška pri dohvatanju liste želja:', error);
+            }
         }
-      }
+    }, [user]);
+
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                ime: user.ime || '',
+                prezime: user.prezime || '',
+                email: user.email || '',
+                currentPassword: '',
+                newPassword: ''
+            });
+            fetchWishlist();
+        }
+    }, [user, fetchWishlist]);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prevState => ({ ...prevState, [name]: value }));
     };
 
-    fetchWishlist();
-  }, [user]);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setMessage('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const updatedUser = {
-        ime: e.target.ime.value,
-        prezime: e.target.prezime.value,
-        email: e.target.email.value,
-        telefon: e.target.telefon.value,
-        adresa: e.target.adresa.value,
-        uloga: user.uloga
-      };
-      await updateUser(updatedUser);
-      alert("Profil uspešno ažuriran");
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Došlo je do greške prilikom ažuriranja profila");
-    }
-  };
+        try {
+            // Ažuriranje osnovnih podataka
+            const profileUpdateData = {
+                ime: formData.ime,
+                prezime: formData.prezime,
+                email: formData.email,
+            };
+            await api.put(`/api/korisnici/${user.id}`, profileUpdateData);
 
-  const handleCourseClick = (kursId) => {
-    navigate(`/kurs/${kursId}`);
-  };
+            // Ažuriranje lozinke samo ako su polja popunjena
+            if (formData.currentPassword && formData.newPassword) {
+                await api.post('/api/auth/change-password', {
+                    currentPassword: formData.currentPassword,
+                    newPassword: formData.newPassword
+                });
+            }
 
-  const handleRemoveFromWishlist = async (kursId) => {
+            const response = await api.get('/api/auth/me');
+            setAuthUser(response.data);
+            localStorage.setItem('user', JSON.stringify(response.data));
+
+            setMessage('Profil je uspešno ažuriran!');
+            setFormData(prevState => ({ ...prevState, currentPassword: '', newPassword: '' }));
+
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Došlo je do greške.';
+            setMessage(errorMessage);
+            console.error("Greška prilikom ažuriranja profila:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleRemoveFromWishlist = async (kursId) => {
+        try {
+            await api.delete('/api/wishlist', {
+                data: { korisnik_id: user.id, kurs_id: kursId }
+            });
+            setWishlist(prevWishlist => prevWishlist.filter(item => item.kurs_id !== kursId));
+        } catch (error) {
+            console.error('Greška pri brisanju iz liste želja:', error);
+        }
+    };
+    
     if (!user) {
-      alert('Please log in to remove from wishlist.');
-      return;
+        return <div className="profil-container"><p>Molimo vas da se ulogujete.</p></div>;
     }
 
-    try {
-      await fetch('http://localhost:5000/api/wishlist', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          korisnik_id: user.id,
-          kurs_id: kursId,
-        }),
-      });
+    return (
+        <div className="profil-container">
+            <div className="profil-content-wrapper">
+                {/* --- Leva Kartica - Profil --- */}
+                <div className="profil-card">
+                    <h2 className="profil-header">Moj Profil</h2>
+                    <form onSubmit={handleSubmit} className="profil-form">
+                        <div className="profil-form-group">
+                            <label htmlFor="ime">Ime</label>
+                            <input id="ime" name="ime" type="text" value={formData.ime} onChange={handleInputChange} required />
+                        </div>
+                        <div className="profil-form-group">
+                            <label htmlFor="prezime">Prezime</label>
+                            <input id="prezime" name="prezime" type="text" value={formData.prezime} onChange={handleInputChange} required />
+                        </div>
+                        <div className="profil-form-group">
+                            <label htmlFor="email">Email</label>
+                            <input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} required />
+                        </div>
+                        
+                        <hr className="profil-divider" />
+                        
+                        <h3 className="profil-subheader">Promena Lozinke</h3>
+                        
+                        <div className="profil-form-group">
+                            <label htmlFor="currentPassword">Trenutna Lozinka</label>
+                            <input id="currentPassword" name="currentPassword" type="password" value={formData.currentPassword} onChange={handleInputChange} placeholder="Unesite za promenu lozinke" />
+                        </div>
+                        <div className="profil-form-group">
+                            <label htmlFor="newPassword">Nova Lozinka</label>
+                            <input id="newPassword" name="newPassword" type="password" value={formData.newPassword} onChange={handleInputChange} placeholder="Unesite novu lozinku" />
+                        </div>
+                        
+                        {message && <p className="profil-message">{message}</p>}
+                        
+                        <button type="submit" className="profil-submit-btn" disabled={isLoading}>
+                            {isLoading ? 'Ažuriranje...' : 'Sačuvaj Promene'}
+                        </button>
+                    </form>
+                </div>
 
-      // Update the local wishlist
-      setWishlist(wishlist.filter(item => item.kurs_id !== kursId));
-    } catch (error) {
-      console.error('Error removing course from wishlist:', error);
-    }
-  };
-
-  const handleLogout = () => {
-    setShowModal(true);
-  };
-
-  const confirmLogout = () => {
-    setShowModal(false);
-    logout();
-  };
-
-  const cancelLogout = () => {
-    setShowModal(false);
-  };
-
-  if (!user) {
-    return <p>Molimo vas da se ulogujete da biste videli vaš profil.</p>;
-  }
-
-  return (
-    <div className="profil-container">
-      <h2 className="profil-header">Moj Profil</h2>
-      <form onSubmit={handleSubmit} className="profil-form">
-        <div className="profil-form-group">
-          <label htmlFor="ime">Ime</label>
-          <input
-            id="ime"
-            type="text"
-            defaultValue={user.ime}
-            required
-          />
+                {/* --- Desna Kartica - Wishlist --- */}
+                <div className="wishlist-card">
+                    <h2 className="profil-header">Lista Želja</h2>
+                    {wishlist.length > 0 ? (
+                        <ul className="wishlist-list">
+                            {wishlist.map(item => (
+                                <li key={item.kurs_id} className="wishlist-item">
+                                    <span className="wishlist-item-name">{item.naziv}</span>
+                                    <button onClick={() => handleRemoveFromWishlist(item.kurs_id)} className="wishlist-remove-btn">Ukloni</button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="wishlist-empty">Vaša lista želja je prazna.</p>
+                    )}
+                </div>
+            </div>
+            <button onClick={logout} className="profil-logout-btn">Odjavi se</button>
         </div>
-        <div className="profil-form-group">
-          <label htmlFor="prezime">Prezime</label>
-          <input
-            id="prezime"
-            type="text"
-            defaultValue={user.prezime}
-            required
-          />
-        </div>
-        <div className="profil-form-group">
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            defaultValue={user.email}
-            required
-          />
-        </div>
-        <div className="profil-form-group">
-          <label htmlFor="telefon">Telefon</label>
-          <input
-            id="telefon"
-            type="text"
-            defaultValue={user.telefon}
-            required
-          />
-        </div>
-        <div className="profil-form-group">
-          <label htmlFor="adresa">Adresa</label>
-          <input
-            id="adresa"
-            type="text"
-            defaultValue={user.adresa}
-            required
-          />
-        </div>
-        <div className="profil-form-group">
-          <label htmlFor="uloga">Uloga</label>
-          <input
-            id="uloga"
-            type="text"
-            defaultValue={user.uloga}
-            readOnly
-          />
-        </div>
-        <button type="submit" className="profil-submit-btn">
-          Ažuriraj Profil
-        </button>
-      </form>
-      <h2 className="profil-wishlist-header">Moja Wishlist</h2>
-      <ul className="profil-wishlist">
-        {wishlist.map(item => (
-          <li 
-            key={item.kurs_id}
-            className="profil-wishlist-item"
-            onClick={() => handleCourseClick(item.kurs_id)}
-          >
-            {item.naziv}
-            <button 
-              className="profil-remove-btn" 
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent triggering handleCourseClick
-                handleRemoveFromWishlist(item.kurs_id);
-              }}
-            >
-              <i className="ri-delete-bin-line"></i>
-            </button>
-          </li>
-        ))}
-      </ul>
-      <button onClick={handleLogout} className="profil-logout-btn">Logout</button>
-
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Potvrda</h3>
-            <p>Da li ste sigurni da želite da se izlogujete?</p>
-            <button onClick={confirmLogout} className="modal-confirm-btn">Da</button>
-            <button onClick={cancelLogout} className="modal-cancel-btn">Ne</button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default MojProfil;

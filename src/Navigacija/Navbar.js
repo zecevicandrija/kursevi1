@@ -38,6 +38,10 @@ const Navbar = () => {
 
     const cartItemCount = cartItems.length; // Ensure it's a number
 
+    const closeMobileMenu = () => {
+    setIsMenuOpen(false);
+};
+
     return (
         <nav className={`navbar ${isDarkTheme ? 'dark' : ''}`}>
             <div className="navbar-container">
@@ -50,10 +54,10 @@ const Navbar = () => {
                 <div className="navbar-right">
                     <ul className={`navbar-menu ${isMenuOpen ? 'active' : ''}`}>
                         <li className="navbar-item">
-                            <Link to="/" className="navbar-link">POČETNA</Link>
+                            <Link to="/" className="navbar-link" onClick={closeMobileMenu}>POČETNA</Link>
                         </li>
                         <li className="navbar-item">
-                            <Link to="/kursevi" className="navbar-link">KURSEVI</Link>
+                            <Link to="/kursevi" className="navbar-link" onClick={closeMobileMenu}>KURSEVI</Link>
                         </li>
                         {/* <li className="navbar-item">
                             <Link to="/o-nama" className="navbar-link">O NAMA</Link>
@@ -68,19 +72,19 @@ const Navbar = () => {
                         {!user ? (
                             <>
                                 <li className="navbar-item auth-item">
-                                    <Link to="/login" className="navbar-link">LOGIN</Link>
+                                    <Link to="/login" className="navbar-link" onClick={closeMobileMenu}>LOGIN</Link>
                                 </li>
                                 <li className="navbar-item auth-item">
-                                    <Link to="/signup" className="navbar-link register-link">REGISTRACIJA</Link>
+                                    <Link to="/signup" className="navbar-link register-link" onClick={closeMobileMenu}>REGISTRACIJA</Link>
                                 </li>
                             </>
                         ) : (
                             <>
                                 <li className="navbar-item">
-                                    <Link to="/kupljenkurs" className="navbar-link">MOJI KURSEVI</Link>
+                                    <Link to="/kupljenkurs" className="navbar-link" onClick={closeMobileMenu}>MOJI KURSEVI</Link>
                                 </li>
                                 <li className="navbar-item">
-                                    <Link to="/korpa" className="navbar-link cart-icon">
+                                    <Link to="/korpa" className="navbar-link cart-icon" onClick={closeMobileMenu}>
                                         <i className="ri-shopping-cart-2-line"></i>
                                         {cartItemCount > 0 && (
                                             <span className="cart-badge">{cartItemCount}</span>
@@ -88,14 +92,14 @@ const Navbar = () => {
                                     </Link>
                                 </li>
                                 <li className="navbar-item">
-                                    <Link to="/profil" className="navbar-link acc-icon">
+                                    <Link to="/profil" className="navbar-link acc-icon" onClick={closeMobileMenu}>
                                         <i className="ri-account-circle-line"></i>
                                     </Link>
                                 </li>
 
                                 {(user.uloga === 'admin' || user.uloga === 'instruktor') && (
                                     <li className="navbar-item">
-                                        <Link to="/instruktor" className="navbar-link chart">
+                                        <Link to="/instruktor" className="navbar-link chart" onClick={closeMobileMenu}>
                                             <i className="ri-line-chart-line"></i>
                                         </Link>
                                     </li>

@@ -1,63 +1,154 @@
 .studenti-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    color: #f0f0f0;
+}
+
+.back-button-studenti {
+    background: none;
+    border: 1px solid #555;
+    color: #ccc;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.back-button-studenti:hover {
+    background-color: #333;
+    color: #fff;
 }
 
 .studenti-title {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
     text-align: center;
+    font-size: 2.8rem;
+    margin-bottom: 2.5rem;
     font-weight: bold;
+    color: #f0f0f0;
+}
+
+.studenti-title span {
+    color: #ffa500; /* Narandžasta boja */
+}
+
+.search-wrapper {
+    margin-bottom: 2rem;
 }
 
 .studenti-search {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
+    padding: 1rem;
+    font-size: 1.1rem;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: #fff;
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.studenti-search:focus {
+    outline: none;
+    border-color: #ffa500;
+    box-shadow: 0 0 10px rgba(255, 165, 0, 0.3);
 }
 
 .studenti-list {
     list-style: none;
     padding: 0;
     margin: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
 .student-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 15px;
-    border-bottom: 1px solid #eee;
+    display: grid;
+    grid-template-columns: 2fr 3fr 1fr; /* 3 kolone za ime, email i datum */
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    background-color: #1e1e1e;
+    border-bottom: 1px solid #333;
+    transition: background-color 0.3s;
 }
 
 .student-item:last-child {
     border-bottom: none;
 }
 
+.student-item.header {
+    background-color: #2c2c2c;
+    font-weight: bold;
+    color: #ffa500;
+    font-size: 1.1rem;
+}
+
+.student-item:not(.header):hover {
+    background-color: #282828;
+}
+
 .student-name {
     font-weight: bold;
-    color: #007BFF;
 }
 
 .student-email {
-    font-style: italic;
-    color: #555;
+    color: #aaa;
 }
 
 .student-date {
+    text-align: right;
     color: #888;
+    font-size: 0.9rem;
 }
 
 .no-students {
     text-align: center;
-    font-size: 18px;
-    color: #999;
-    margin-top: 20px;
+    padding: 3rem;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    color: #888;
+    font-size: 1.2rem;
+}
+
+/* Responzivni dizajn */
+@media (max-width: 768px) {
+    .studenti-container {
+        padding: 1rem;
+        margin-top: 60px;
+    }
+
+    .studenti-title {
+        font-size: 2rem;
+    }
+
+    /* Sakrivamo header tabele na mobilnim */
+    .student-item.header {
+        display: none;
+    }
+
+    .student-item {
+        grid-template-columns: 1fr; /* Sve ide u jednu kolonu */
+        gap: 0.5rem;
+        text-align: left;
+    }
+
+    .student-item .student-date {
+        text-align: left;
+    }
+    
+    /* Dodajemo labele pre podataka na mobilnim */
+    .student-item .student-email::before {
+        content: 'Email: ';
+        font-weight: bold;
+        color: #aaa;
+    }
+
+    .student-item .student-date::before {
+        content: 'Kupljeno: ';
+        font-weight: bold;
+        color: #888;
+    }
 }

@@ -20,6 +20,8 @@ import Korpa from './Kupovina/Korpa';
 import { ThemeProvider } from './komponente/ThemeContext';
 import Kviz from './Instruktori/Kviz';
 import Checkout from './Kupovina/Checkout';
+import EditKursa from './Instruktori/EditKursa';
+import Statistika from './Instruktori/Statistika';
 
 import './App.css';
 
@@ -48,6 +50,8 @@ const App = () => {
           <Route path="/korpa" element={<Korpa />} />
           <Route path='/napravikviz' element={<Kviz />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/edit-kurs/:kursId" element={<EditKursa />} />
+          <Route path="/statistika/:kursId" element={<Statistika />} />
           <Route path="/nevazeca" element={<Nepostojeca />} />
         </Routes>
         </ThemeProvider>

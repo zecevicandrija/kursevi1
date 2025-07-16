@@ -10,12 +10,12 @@ const Lekcije = () => {
     const [newLekcija, setNewLekcija] = useState({ course_id: '', title: '', content: '', section: '', assignment: '' });
     const [video, setVideo] = useState(null);
     const [loading, setLoading] = useState(false); // New state for loading
-    const { user } = useAuth(); // Fetch user from AuthContext
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchLekcije = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/lekcije');
+                const response = await axios.get('https://horses-1.onrender.com/api/lekcije');
                 setLekcije(response.data);
             } catch (error) {
                 console.error('Error fetching lessons:', error);
@@ -26,7 +26,7 @@ const Lekcije = () => {
             if (!user || !user.id) return; // Ensure user and user.id are available
 
             try {
-                const response = await axios.get(`http://localhost:5000/api/kursevi/instruktor/${user.id}`);
+                const response = await axios.get(`https://horses-1.onrender.com/api/kursevi/instruktor/${user.id}`);
                 setCourses(response.data);
             } catch (error) {
                 console.error('Error fetching courses:', error);
@@ -52,7 +52,7 @@ const Lekcije = () => {
 
     const fetchSections = async (courseId) => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/lekcije/sections/${courseId}`);
+            const response = await axios.get(`https://horses-1.onrender.com/api/lekcije/sections/${courseId}`);
             setSections(response.data);
         } catch (error) {
             console.error('Error fetching sections:', error);
@@ -78,14 +78,14 @@ const Lekcije = () => {
             formData.append('video', video);
         }
 
-        const response = await axios.post('http://localhost:5000/api/lekcije', formData, {
+        const response = await axios.post('https://horses-1.onrender.com/api/lekcije', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
         });
 
         // Osvežite listu lekcija
-        const lekcijeResponse = await axios.get('http://localhost:5000/api/lekcije');
+        const lekcijeResponse = await axios.get('https://horses-1.onrender.com/api/lekcije');
         setLekcije(lekcijeResponse.data);
         setNewLekcija({ course_id: '', title: '', content: '', section: '', assignment: '' });
         setVideo(null);

@@ -13,7 +13,7 @@ const KursLista = () => {
 
     const fetchKursevi = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/kursevi');
+            const response = await fetch('https://horses-1.onrender.com/api/kursevi');
             if (response.ok) {
                 const data = await response.json();
                 setKursevi(data);
@@ -27,7 +27,7 @@ const KursLista = () => {
 
     const fetchAverageRating = async (kursId) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/ratings/average/${kursId}`);
+            const response = await fetch(`https://horses-1.onrender.com/api/ratings/average/${kursId}`);
             if (response.ok) {
                 const data = await response.json();
                 return data.averageRating;
@@ -43,7 +43,7 @@ const KursLista = () => {
 
     const fetchPopularity = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/kupovina/popularity');
+            const response = await fetch('https://horses-1.onrender.com/api/kupovina/popularity');
             if (response.ok) {
                 const data = await response.json();
                 const popularityMap = {};
@@ -61,7 +61,7 @@ const KursLista = () => {
 
     const fetchInstruktori = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/korisnici');
+            const response = await fetch('https://horses-1.onrender.com/api/korisnici');
             if (response.ok) {
                 const data = await response.json();
                 const instructors = {};
@@ -149,28 +149,38 @@ const KursLista = () => {
             <div className="kurs-lista">
                 {filteredKursevi.map(kurs => (
                     <Link to={`/kurs/${kurs.id}`} className="kurs-card" key={kurs.id}>
-                        {kurs.slika && (
-                            <img src={kurs.slika} alt={kurs.naziv} className="kurs-slika" />
-                        )}
-                        <p className="kurs-naziv">{kurs.naziv}</p>
-                        {/* <p className="kurs-opis">{kurs.opis}</p> */}
-                        <p className="kurs-cena">{kurs.cena}rsd</p>
-                        <p className="kurs-instruktor">{instruktori[String(kurs.instruktor_id)] || 'Nepoznati'}</p>
-                        <p className="kurs-datum">{new Date(kurs.created_at).toLocaleDateString()}</p>
-                        <div className="kurs-rating">
-    <span className="average-rating">{(ratings[kurs.id] || 0).toFixed(1)}</span>
-    <ReactStars
-        count={5}
-        value={ratings[kurs.id] || 0}
-        size={24}
-        color2="#ffd700"
-        edit={false} // Disable editing of stars
-    />
-</div>
-<p className="kurs-popularity">Studenti: {popularity[kurs.id] ? popularity[kurs.id] : 'N/A'}</p>
+    <div className="kurs-slika-wrapper">
+        {kurs.slika && (
+            <img src={kurs.slika} alt={kurs.naziv} className="kurs-slika" />
+        )}
+    </div>
+    <div className="kurs-card-content">
+        <p className="kurs-naziv">{kurs.naziv}</p>
+        <p className="kurs-instruktor">
+            <i className="ri-user-fill"></i> {instruktori[String(kurs.instruktor_id)] || 'Nepoznat'}
+        </p>
 
-
-                    </Link>
+        {/* Ovaj div gura cenu i ocenu na dno kartice */}
+        <div className="kurs-meta">
+            <p className="kurs-cena">{kurs.cena} RSD</p>
+            <div className="kurs-rating">
+                <div className="rating-value">
+                    <span className="average-rating">{(ratings[kurs.id] || 0).toFixed(1)}</span>
+                    <ReactStars
+                        count={5}
+                        value={ratings[kurs.id] || 0}
+                        size={20}
+                        color2="#ffd700"
+                        edit={false}
+                    />
+                </div>
+                <p className="kurs-popularity">
+                    <i className="ri-group-fill"></i> {popularity[kurs.id] || 0} studenata
+                </p>
+            </div>
+        </div>
+    </div>
+</Link>
                 ))}
             </div>
         </div>

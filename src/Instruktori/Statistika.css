@@ -1,0 +1,165 @@
+/* --- Glavni kontejner stranice --- */
+.statistika-container {
+    padding: 2rem 4rem;
+    max-width: 1600px;
+    margin: 0 auto;
+    color: #f0f0f0;
+    margin-top: 30px;
+}
+
+/* --- Dugme za povratak --- */
+.back-button-statistika {
+    background: none;
+    border: 1px solid #555;
+    color: #ccc;
+    padding: 0.6rem 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s, color 0.3s;
+}
+.back-button-statistika:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+/* --- Glavni naslov --- */
+.statistika-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+.statistika-header h1 {
+    font-size: 2.8rem;
+    font-weight: bold;
+    color: #f0f0f0;
+}
+.statistika-header h1 span {
+    color: #ffa500; /* Narandžasti akcenat */
+}
+
+/* --- Filteri za datume --- */
+.filter-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    padding: 1.5rem;
+    background-color: rgba(26, 26, 26, 0.7);
+    border: 1px solid #333;
+    border-radius: 10px;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap; /* Omogućava prelamanje na manjim ekranima */
+}
+
+.date-picker-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #ccc;
+}
+
+.date-picker {
+    background-color: #333;
+    border: 1px solid #555;
+    color: #fff;
+    padding: 0.7rem;
+    border-radius: 5px;
+    text-align: center;
+    width: 120px; /* Fiksna širina za input */
+    font-size: 1rem;
+}
+
+.preset-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+.preset-buttons button {
+    background-color: #333;
+    color: #ccc;
+    border: 1px solid #555;
+    padding: 0.7rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.preset-buttons button:hover {
+    background-color: #ffa500;
+    color: #111;
+    border-color: #ffa500;
+}
+
+/* --- Kartice sa ukupnom statistikom --- */
+.stats-grid {
+    display: grid;
+    /* Automatski pravi kolone koje su bar 250px široke */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.stat-card {
+    background-color: #1e1e1e;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid #333;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-card p {
+    margin: 0;
+    font-size: 2.8rem;
+    font-weight: bold;
+    color: #ffa500;
+}
+
+/* --- Kontejner za grafikon --- */
+.chart-wrapper {
+    background-color: #1e1e1e;
+    padding: 2rem;
+    border-radius: 10px;
+    border: 1px solid #333;
+    height: 450px; /* Definisana visina za grafikon */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+.chart-wrapper h3 {
+    margin-top: 0;
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* --- Responzivni Dizajn --- */
+@media (max-width: 992px) {
+    .filter-bar {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .statistika-container {
+        padding: 1.5rem 1rem;
+        margin-top: 60px;
+    }
+
+    .statistika-header h1 {
+        font-size: 2.2rem;
+    }
+
+    .stat-card p {
+        font-size: 2.2rem;
+    }
+}

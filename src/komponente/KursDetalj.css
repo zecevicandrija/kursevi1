@@ -1,371 +1,276 @@
-/* General Layout & Variables */
+/* =================================================================== */
+/* KURS DETALJ - CSS (Redizajn - v2)                       */
+/* =================================================================== */
+
+/* --- Varijable za boje ostaju iste --- */
+:root {
+    --primary-color: #ffa500;
+    --primary-color-hover: #ffc24a;
+    --dark-bg: rgba(26, 26, 26, 0.9);
+    --dark-bg-solid: #1a1a1a;
+    --card-border-color: rgba(255, 255, 255, 0.18);
+    --text-primary: #f0f0f0;
+    --text-secondary: #ccc;
+    --text-muted: #888;
+}
+
+/* --- Osnovni stilovi stranice --- */
 .course-detail-page {
     width: 100%;
-    min-height: 100vh;
-    background-color: #f0f2f5; /* Light gray background for the whole page */
-    color: #333;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+    margin-top: 20px;
 }
 
-:root {
-    --primary-color: #4a90e2; /* A nice blue */
-    --primary-hover-color: #357ABD;
-    --secondary-color: #50e3c2; /* A fresh mint green */
-    --secondary-hover-color: #38a892;
-    --dark-bg: #282c34;
-    --light-text: #ffffff;
-    --card-bg: #ffffff;
-    --border-color: #e0e0e0;
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --border-radius: 8px;
-}
-
-/* Header Section */
+/* --- Zaglavlje kursa (malo suptilnije) --- */
 .course-header {
-    background-color: var(--dark-bg);
-    color: var(--light-text);
-    padding: 4rem 2rem;
+    background-color: transparent;
+    color: var(--text-primary);
+    padding: 1rem 0;
     text-align: center;
-}
-
-.header-content {
-    max-width: 900px;
-    margin: 0 auto;
+    margin: 0 auto 2rem auto;
+    max-width: 1600px;
+    border-bottom: 1px solid var(--card-border-color);
 }
 
 .course-title-header {
     font-size: 2.8rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+    margin: 0 0 0.5rem 0;
 }
-
 .course-subtitle {
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.8);
-    max-width: 700px;
-    margin: 0 auto 1rem;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 800px;
+    margin: 0 auto 0.5rem auto;
 }
-
 .course-meta-header {
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-muted);
 }
 
-/* Two-column Layout Wrapper */
+/* --- NOVI Glavni layout (dve kolone) --- */
 .course-layout-wrapper {
     display: flex;
-    flex-direction: row-reverse; /* Sidebar on the right */
+    flex-direction: row-reverse; /* <<< KLJUČNA PROMENA: menja strane */
     gap: 2rem;
-    padding: 2rem;
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
-    align-items: flex-start;
 }
 
-.main-content {
-    flex: 3; /* Takes up more space */
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+.main-content-right {
+    flex: 3;
+    min-width: 0;
 }
 
-.sidebar {
-    flex: 1; /* Takes up less space */
-    min-width: 320px; /* Minimum width for the sidebar */
+.sidebar-left {
+    flex: 1;
+    min-width: 340px; /* Malo širi sidebar */
 }
 
 .sidebar-sticky-content {
     position: sticky;
-    top: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+    top: 90px;
 }
 
-/* Universal Card Style */
-.lesson-player-card,
-.lesson-content-card,
-.assignment-card,
+/* --- Opšti stil za kartice --- */
 .course-actions-card,
-.lessons-list-card {
-    background-color: var(--card-bg);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
-    padding: 1.5rem;
-    border: 1px solid var(--border-color);
+.lessons-list-card,
+.lesson-player-card,
+.assignment-card,
+.komentari-container,
+.prikaz-kviza-container {
+    background-color: var(--dark-bg);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    border: 1px solid var(--card-border-color);
+    margin-bottom: 2rem;
 }
 
-/* Main Content Specifics */
+/* --- STIL ZA DESNU KOLONU (Glavni Sadržaj) --- */
+
+/* Wrapper za video ili thumbnail */
+.content-display-area {
+    margin-bottom: 2rem;
+    width: 80%;
+}
+
+.lesson-section h5{
+    color: white;
+}
+
+.lesson-section span {
+    color: white;
+}
+
+.lesson-player-card {
+    padding: 0;
+    overflow: hidden; /* Važno za zaobljene ivice */
+}
+.lesson-player-card h3 {
+    padding: 1.5rem 2rem 1rem 2rem;
+    margin: 0;
+    font-size: 1.8rem;
+    color: var(--primary-color);
+}
+.lesson-content-text {
+    padding: 1rem 2rem 1.5rem 2rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+/* === REŠENJE ZA IFRAME POZADINU === */
+.player-wrapper {
+    position: relative;
+    padding-top: 56.25%; /* 16:9 razmera */
+    background-color: #000;
+    overflow: hidden; /* Sakriva delove iframe-a koji prelaze ivice */
+    border-radius: 0; /* Plejer nema radijus, samo kartica */
+}
+.player-wrapper iframe {
+    position: absolute;
+    /* Pravimo iframe većim od kontejnera i centriramo ga */
+    /* Ovo "kropuje" ivice (npr. plavu pozadinu) */
+    width: 200%; 
+    height: 200%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: none;
+}
+.player-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-secondary);
+}
+
+/* Stil za thumbnail kada kurs nije kupljen */
 .course-thumbnail-wrapper {
-    width: 100%;
-    border-radius: var(--border-radius);
+    position: relative;
+    border-radius: 15px;
     overflow: hidden;
-    box-shadow: var(--shadow);
 }
-
 .course-thumbnail {
     width: 100%;
     height: auto;
     display: block;
 }
-
-.lesson-player-card {
-    padding: 0;
-    overflow: hidden;
-}
-
-.lesson-video {
-    width: 100%;
-    height: auto;
-    display: block;
-    background-color: #000;
-}
-
-.lesson-content-card h3,
-.assignment-card h3 {
-    margin-top: 0;
-    font-size: 1.5rem;
-    color: #222;
-    border-bottom: 2px solid var(--primary-color);
-    padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-/* Code Editor & AI Feedback */
-.code-editor-wrapper {
-    margin-top: 1.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-}
-
-.editor-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f7f7f7;
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.editor-header h4 {
-    margin: 0;
-    font-size: 1rem;
-}
-
-.editor-header select {
-    padding: 0.3rem 0.5rem;
-    border-radius: 4px;
-    border: 1px solid var(--border-color);
-}
-
-.editor-actions {
-    display: flex;
-    gap: 0.75rem;
-    padding: 1rem;
-    background-color: #f7f7f7;
-    border-top: 1px solid var(--border-color);
-}
-
-.ai-feedback {
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: #e6f7ff;
-    border: 1px solid #91d5ff;
-    border-radius: var(--border-radius);
-}
-
-.ai-feedback h4 {
-    margin-top: 0;
-    color: #0050b3;
-}
-
-.ai-feedback pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    background-color: transparent;
-    padding: 0;
-    margin: 0;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 0.9rem;
-    color: #333;
-}
-
-/* Sidebar Specifics */
-.course-actions-card,
-.lessons-list-card {
-    width: 100%;
-}
-
-.price-tag {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.btn {
-    display: block;
-    width: 100%;
-    padding: 0.8rem 1rem;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    text-align: center;
-}
-
-.btn-purchase {
-    background-color: var(--primary-color);
-    color: var(--light-text);
-}
-.btn-purchase:hover {
-    background-color: var(--primary-hover-color);
-}
-
-.btn-wishlist {
-    background-color: transparent;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
-    margin-top: 0.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-.btn-wishlist:hover {
-    background-color: var(--primary-color);
-    color: var(--light-text);
-}
-
-.rating-section {
+.thumbnail-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    gap: 1rem;
+    text-align: center;
+    padding: 2rem;
 }
-
-.rating-section .btn-primary {
-    background-color: var(--primary-color);
-    color: var(--light-text);
+.thumbnail-overlay h3 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    margin: 0;
 }
-.rating-section .btn-primary:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-/* Lesson List */
-.lessons-list-card h4 {
-    margin-top: 0;
+.thumbnail-overlay p {
     font-size: 1.2rem;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+
+/* --- STIL ZA LEVU KOLONU (Sidebar) --- */
+
+/* Kartica za akcije (kupovina/ocena) */
+.course-actions-card {
+    text-align: center;
+    border-left: 3px solid var(--primary-color); /* Naglašavanje */
+}
+.price-tag {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
     margin-bottom: 1rem;
 }
+/* Dugmad (stilovi ostaju uglavnom isti) */
+.btn { width: 100%; padding: 0.8rem 1rem; border: none; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+.btn-purchase { background-color: var(--primary-color); color: var(--dark-bg-solid); margin-bottom: 0.75rem; }
+.btn-purchase:hover { background-color: var(--primary-color-hover); transform: scale(1.02); }
+.btn-wishlist { background: transparent; color: var(--text-secondary); border: 1px solid #555; }
+.btn-wishlist:hover { background-color: #555; color: var(--text-primary); }
+.rating-section h4 { margin-top: 0; margin-bottom: 1rem; color: var(--text-primary); }
+.rating-section .btn { margin-top: 1rem; }
 
-.lesson-section {
-    border-bottom: 1px solid var(--border-color);
+/* Lista lekcija */
+.lessons-list-card h4 {
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
 }
-.lesson-section:last-child {
-    border-bottom: none;
-}
+.section-header { background-color: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background-color 0.3s ease; }
+.section-header:hover { background-color: rgba(255, 255, 255, 0.1); }
+.chevron { border: solid var(--text-secondary); border-width: 0 2px 2px 0; display: inline-block; padding: 3px; transform: rotate(45deg); transition: transform 0.3s ease-in-out; }
+.chevron.expanded { transform: rotate(-135deg); }
+.lessons-list { list-style: none; padding: 0 0 0 1rem; margin: 0; }
+.lesson-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0.5rem; border-bottom: 1px solid #333; transition: background-color 0.3s, border-left-color 0.3s; border-left: 3px solid transparent; }
+.lesson-item:last-child { border-bottom: none; }
+.lesson-item.disabled { color: var(--text-muted); cursor: not-allowed; opacity: 0.6; }
+.lesson-item:not(.disabled) { cursor: pointer; }
+.lesson-item:not(.disabled):hover { background-color: rgba(255, 165, 0, 0.1); }
+.lesson-item.active { background-color: rgba(255, 165, 0, 0.15); border-left-color: var(--primary-color); color: var(--primary-color-hover); font-weight: bold;}
+.lesson-item-title { display: flex; align-items: center; gap: 0.8rem; }
+.lesson-item-title i { color: var(--primary-color); }
+.lesson-complete-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary-color); }
 
-.section-header {
-    padding: 1rem 0.5rem;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: 600;
-    font-size: 1rem;
-    margin: 0;
-}
-.section-header:hover {
-    background-color: #f9f9f9;
-}
 
-.chevron {
-    border-style: solid;
-    border-width: 0 2px 2px 0;
-    display: inline-block;
-    padding: 3px;
-    transform: rotate(45deg);
-    transition: transform 0.2s ease-in-out;
-}
-
-.chevron.expanded {
-    transform: rotate(-135deg);
-}
-
-.lessons-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.lesson-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.8rem 1rem;
-    cursor: pointer;
-    border-top: 1px solid var(--border-color);
-    transition: background-color 0.2s;
-}
-.lesson-item.disabled {
-    cursor: not-allowed;
-    color: #999;
-}
-.lesson-item:not(.disabled):hover {
-    background-color: #e6f7ff;
-}
-.lesson-item.active {
-    background-color: var(--primary-color);
-    color: var(--light-text);
-    border-left: 4px solid var(--secondary-color);
-}
-.lesson-item.active .lesson-item-title i {
-    color: var(--light-text);
+/* --- Responzivni Dizajn --- */
+@media (max-width: 1200px) {
+    .sidebar-left {
+        min-width: 300px; /* Smanjujemo širinu sidebara */
+    }
+    .course-detail-page {
+        padding: 1.5rem;
+    }
 }
 
-.lesson-item-title {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.lesson-item-title i {
-    color: var(--primary-color);
-}
-
-.lesson-complete-checkbox {
-    cursor: pointer;
-    width: 18px;
-    height: 18px;
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
+/* --- Standardni tableti --- */
+@media (max-width: 992px) {
     .course-layout-wrapper {
-        flex-direction: column; /* Stack main content and sidebar */
-        padding: 1rem;
+        flex-direction: column; /* Vraćamo na jednu kolonu */
     }
-
-    .sidebar {
-        width: 100%;
-        min-width: unset;
+    .sidebar-left {
+        min-width: 100%; /* Sidebar zauzima punu širinu */
+        order: 2; /* Prikazuje se posle glavnog sadržaja */
     }
-
+    .main-content-right {
+        order: 1; /* Glavni sadržaj ide prvi */
+    }
     .sidebar-sticky-content {
-        position: static;
+        position: static; /* Uklanjamo sticky ponašanje */
+    }
+    .course-title-header {
+        font-size: 2.5rem;
     }
 }
 
+/* --- Mobilni telefoni (Landscape i veći) --- */
 @media (max-width: 768px) {
+    .course-detail-page {
+        padding: 1rem;
+        margin-top: 10px;
+    }
     .course-header {
-        padding: 2.5rem 1rem;
+        padding: 1rem 0;
+        text-align: left;
     }
     .course-title-header {
         font-size: 2rem;
@@ -373,10 +278,51 @@
     .course-subtitle {
         font-size: 1rem;
     }
+    .course-actions-card, .lessons-list-card, .lesson-player-card,
+    .assignment-card, .komentari-container, .prikaz-kviza-container {
+        padding: 1.5rem;
+    }
+     .content-display-area {
+        margin: auto;
+        width: 100%;
+    }
 }
 
-/* Icon placeholders - replace with actual icon font or SVGs */
-.icon-play::before { content: '▶'; font-size: 0.8em; }
-.icon-assignment::before { content: '📝'; }
-.icon-heart-filled::before { content: '❤️'; color: red; }
-.icon-heart::before { content: '🤍'; }
+@media (max-width: 1024px) {
+    .content-display-area {
+        margin: auto;
+        width: 100%;
+    }
+}
+
+
+/* --- Manji mobilni telefoni (Portrait) --- */
+@media (max-width: 480px) {
+    .course-title-header {
+        font-size: 1.8rem;
+    }
+    .price-tag {
+        font-size: 2rem;
+    }
+    .course-actions-card, .lessons-list-card, .lesson-player-card,
+    .assignment-card, .komentari-container, .prikaz-kviza-container {
+        padding: 1rem; /* Još manje paddinga za najuže ekrane */
+    }
+    .lesson-player-card h3 {
+        font-size: 1.5rem;
+        padding: 1rem;
+    }
+    .lesson-content-text {
+        padding: 0.5rem 1rem 1rem 1rem;
+    }
+    .content-display-area {
+        margin: auto;
+        width: 100%;
+    }
+    .player-wrapper iframe {
+        width: 177.77vh; /* 100 * 16 / 9 (16:9 aspect ratio) */
+        height: 100vw * 9 / 16; /* Fallback za visinu */
+        transform: translate(-50%, -50%);
+        aspect-ratio: 2;
+    }
+}
