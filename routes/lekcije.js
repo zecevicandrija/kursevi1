@@ -9,10 +9,13 @@ const { createVideo, uploadVideo, getPlayerUrl } = require('../utils/bunny');
 const upload = multer({ storage: multer.memoryStorage() });
 
 
-// --- POST Dodavanje lekcije (Nova, ispravna logika) ---
+// --- POST Dodavanje lekcije (AŽURIRANA LOGIKA) ---
 router.post('/', upload.single('video'), async (req, res) => {
     try {
-        const { course_id, title, content, section, assignment } = req.body;
+        // IZMENA: Umesto 'section' sada primamo 'sekcija_id'
+        const { course_id, title, content, sekcija_id, assignment } = req.body;
+
+        // IZMENA: Proveravamo 'sekcija_id' umesto 'section' (iako nije obavezno za validaciju)
         if (!course_id || !title || !content || !req.file) {
             return res.status(400).json({ error: 'Sva polja i video su obavezni.' });
         }
@@ -22,8 +25,10 @@ router.post('/', upload.single('video'), async (req, res) => {
 
         await uploadVideo(videoGuid, req.file.buffer);
 
-        const query = 'INSERT INTO lekcije (course_id, title, content, video_url, section, assignment) VALUES (?, ?, ?, ?, ?, ?)';
-        await db.query(query, [course_id, title, content, videoGuid, section, assignment || null]);
+        // IZMENA: Ažuriran SQL upit da koristi 'sekcija_id'
+        const query = 'INSERT INTO lekcije (course_id, title, content, video_url, sekcija_id, assignment) VALUES (?, ?, ?, ?, ?, ?)';
+        // IZMENA: Prosleđujemo 'sekcija_id' u upit
+        await db.query(query, [course_id, title, content, videoGuid, sekcija_id, assignment || null]);
         
         res.status(201).json({ message: 'Lekcija i video su uspešno dodati.' });
     } catch (error) {
@@ -32,11 +37,12 @@ router.post('/', upload.single('video'), async (req, res) => {
     }
 });
 
-// --- PUT Ažuriranje lekcije (Nova, ispravna logika) ---
+// --- PUT Ažuriranje lekcije (AŽURIRANA LOGIKA) ---
 router.put('/:id', upload.single('video'), async (req, res) => {
     try {
         const lessonId = req.params.id;
-        const { course_id, title, content, section, video_url, assignment } = req.body;
+        // IZMENA: Umesto 'section' sada primamo 'sekcija_id'
+        const { course_id, title, content, sekcija_id, video_url, assignment } = req.body;
         if (!course_id || !title || !content) {
             return res.status(400).json({ error: 'Nedostaju obavezna polja.' });
         }
@@ -49,8 +55,10 @@ router.put('/:id', upload.single('video'), async (req, res) => {
             newVideoUrl = videoGuid;
         }
 
-        const query = 'UPDATE lekcije SET course_id = ?, title = ?, content = ?, video_url = ?, section = ?, assignment = ? WHERE id = ?';
-        await db.query(query, [course_id, title, content, newVideoUrl, section, assignment, lessonId]);
+        // IZMENA: Ažuriran SQL upit da koristi 'sekcija_id'
+        const query = 'UPDATE lekcije SET course_id = ?, title = ?, content = ?, video_url = ?, sekcija_id = ?, assignment = ? WHERE id = ?';
+        // IZMENA: Prosleđujemo 'sekcija_id' u upit
+        await db.query(query, [course_id, title, content, newVideoUrl, sekcija_id, assignment, lessonId]);
         
         res.status(200).json({ message: `Lekcija sa ID-jem ${lessonId} uspešno ažurirana.` });
     } catch (error) {
@@ -59,7 +67,7 @@ router.put('/:id', upload.single('video'), async (req, res) => {
     }
 });
 
-// --- NOVA RUTA: Dobijanje sigurnog linka za video ---
+// --- RUTA: Dobijanje sigurnog linka za video (NEMA IZMENA) ---
 router.get('/:id/stream', async (req, res) => {
     try {
         const { id } = req.params;
@@ -79,7 +87,7 @@ router.get('/:id/stream', async (req, res) => {
     }
 });
 
-// GET Sve lekcije
+// GET Sve lekcije (NEMA IZMENA)
 router.get('/', async (req, res) => {
     try {
         const [results] = await db.query('SELECT * FROM lekcije');
@@ -90,7 +98,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET Lekcije po kursu
+// GET Lekcije po kursu (NEMA IZMENA)
 router.get('/course/:courseId', async (req, res) => {
     try {
         const { courseId } = req.params;
@@ -102,7 +110,7 @@ router.get('/course/:courseId', async (req, res) => {
     }
 });
 
-// DELETE Brisanje lekcije
+// DELETE Brisanje lekcije (NEMA IZMENA)
 router.delete('/:id', async (req, res) => {
     try {
         const lessonId = req.params.id;
@@ -117,19 +125,25 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// =======================================================================
+// IZMENA: CEO ENDPOINT JE AŽURIRAN DA KORISTI NOVU 'sekcije' TABELU
+// =======================================================================
 // GET Sekcije po kursu
 router.get('/sections/:courseId', async (req, res) => {
     try {
         const { courseId } = req.params;
-        const [results] = await db.query('SELECT DISTINCT section FROM lekcije WHERE course_id = ? ORDER BY section ASC', [courseId]);
-        res.status(200).json(results.map(row => row.section));
+        // Upit sada ide u tabelu `sekcije` i sortira po našoj `redosled` koloni
+        const query = 'SELECT id, naziv, redosled FROM sekcije WHERE kurs_id = ? ORDER BY redosled ASC';
+        const [results] = await db.query(query, [courseId]);
+        // Vraćamo cele objekte (id, naziv, redosled) koji su potrebni za frontend
+        res.status(200).json(results);
     } catch (err) {
         console.error('Database error:', err);
         res.status(500).json({ error: 'Database error' });
     }
 });
 
-// GET Broj lekcija po kursu
+// GET Broj lekcija po kursu (NEMA IZMENA)
 router.get('/count/:courseId', async (req, res) => {
     try {
         const { courseId } = req.params;
@@ -141,7 +155,7 @@ router.get('/count/:courseId', async (req, res) => {
     }
 });
 
-// DeepSeek AI ruta
+// DeepSeek AI ruta (NEMA IZMENA)
 router.post('/deepseek-review', async (req, res) => {
     const { code, language } = req.body;
     try {

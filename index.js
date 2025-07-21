@@ -17,16 +17,16 @@ const kvizoviRouter = require('./routes/kvizovi');
 const rezultatiKvizaRouter = require('./routes/rezultati_kviza');
 const placanjeRouter = require('./routes/placanje');
 const webhooksRouter = require('./routes/webhooks');
+const sekcijeRouter = require('./routes/sekcije');
 
 const app = express();
-const port = process.env.PORT || 3306;
+const port = process.env.PORT || 5000;
 
 // Middleware
 app.use('/api/webhooks', webhooksRouter);
 // Definišemo listu dozvoljenih adresa
 const allowedOrigins = [
-    'https://learningplatform1.netlify.app',
-    'https://learningplatform1.netlify.app/'
+    'http://localhost:3000'
 ];
 
 app.use(cors({
@@ -60,6 +60,7 @@ app.use('/api/popusti', popustiRouter);
 app.use('/api/kvizovi', kvizoviRouter);
 app.use('/api/rezultati_kviza', rezultatiKvizaRouter);
 app.use('/api/placanje', placanjeRouter);
+app.use('/api/sekcije', sekcijeRouter);
 
 
 // Start server

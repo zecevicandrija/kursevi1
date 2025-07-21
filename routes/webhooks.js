@@ -87,6 +87,24 @@ router.post('/lemon-squeezy', async (req, res) => {
                     [ime, prezime, userEmail, hashedPassword, 'korisnik', expiryDate]
                 );
                 userId = newUserResult.insertId;
+
+                const pismo = `
+  <div style="background-color:#121212;padding:40px 0;text-align:center;font-family:'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <div style="max-width:500px;margin:0 auto;background-color:#1e1e1e;padding:30px;border-radius:12px;box-shadow:0 0 20px rgba(255, 60, 0, 0.5);">
+    <h1 style="color:#ff3c00;margin-bottom:20px;">Dobrodošao, ${ime}!</h1>
+    <p style="color:#ffffff;font-size:16px;margin-bottom:30px;">
+      Hvala ti što si kupio kurs. Tvoj nalog je uspešno kreiran i spreman za korišćenje.
+    </p>
+    <div style="text-align:left;background:#121212;padding:20px;border-radius:8px;border:1px solid #ff3c00;color:#fff;">
+      <p style="margin:0 0 10px;"><strong>Email:</strong> ${userEmail}</p>
+      <p style="margin:0;"><strong>Lozinka:</strong> <span style="color:#ff3c00;">${password}</span></p>
+    </div>
+    <p style="color:#888;margin-top:30px;font-size:12px;">
+      Savet: Nakon prijave, možeš odmah da promeniš svoju lozinku u podešavanjima profila.
+    </p>
+  </div>
+</div>
+`;
                 
                 // Šaljemo email samo novom korisniku
                 try {
@@ -95,7 +113,7 @@ router.post('/lemon-squeezy', async (req, res) => {
                         from: 'MotionAcademy <office@undovrbas.com>',
                         to: userEmail,
                         subject: 'Dobrodošli! Vaš nalog je kreiran.',
-                        html: `<h1>Pozdrav ${ime},</h1><p>Hvala na kupovini! Vaš nalog je uspešno kreiran.</p><p>Podaci za prijavu:</p><ul><li>Email: ${userEmail}</li><li>Lozinka: <strong>${password}</strong></li></ul>`
+                        html: pismo
                     });
                 } catch (emailError) {
                     console.error("Greška prilikom slanja email-a:", emailError);
