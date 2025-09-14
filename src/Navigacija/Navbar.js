@@ -47,7 +47,7 @@ const Navbar = () => {
             <div className="navbar-container">
                 <div className="navbar-left">
                     <Link to="/" className="navbar-logo">
-                        <img src={motionlogo} alt='logo' className='logo' />
+                        <img src={undologoo} alt='logo' className='logo' />
                     </Link>
                 </div>
 
@@ -74,9 +74,9 @@ const Navbar = () => {
                                 <li className="navbar-item auth-item">
                                     <Link to="/login" className="navbar-link" onClick={closeMobileMenu}>LOGIN</Link>
                                 </li>
-                                <li className="navbar-item auth-item">
+                                {/* <li className="navbar-item auth-item">
                                     <Link to="/signup" className="navbar-link register-link" onClick={closeMobileMenu}>REGISTRACIJA</Link>
-                                </li>
+                                </li> */}
                             </>
                         ) : (
                             <>
